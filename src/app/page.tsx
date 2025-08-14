@@ -1,110 +1,131 @@
+"use client";
+
+import React from "react";
+import { useRouter } from "next/navigation"; 
+import "@/styles/DashboardButtons.css";// ✅ Use Next.js router
+
 export default function DashboardPage() {
+  const router = useRouter();
+
   const quickLinks = [
-    { title: "View All Cases", color: "#2563EB" },
-    { title: "Upload Evidence", color: "#059669" },
-    { title: "Manage Witnesses", color: "#F59E42" },
-    { title: "Hearing Calendar", color: "#A21CAF" },
-    { title: "Search Cases", color: "#DC2626" },
+    {
+      title: "View All Cases",
+      color: "from-blue-600 to-blue-700",
+      hoverColor: "hover:from-blue-700 hover:to-blue-800",
+      focusRing: "focus:ring-blue-500",
+      path: "/cases",
+    },
+    {
+      title: "Upload Evidence",
+      color: "from-emerald-600 to-emerald-700",
+      hoverColor: "hover:from-emerald-700 hover:to-emerald-800",
+      focusRing: "focus:ring-emerald-500",
+      path: "/evidence/1234",
+    },
+    {
+      title: "Manage Witnesses",
+      color: "from-orange-500 to-orange-600",
+      hoverColor: "hover:from-orange-600 hover:to-orange-700",
+      focusRing: "focus:ring-orange-400",
+      path: "/witnesses/1234",
+    },
+    {
+      title: "Hearing Calendar",
+      color: "from-purple-700 to-purple-800",
+      hoverColor: "hover:from-purple-800 hover:to-purple-900",
+      focusRing: "focus:ring-purple-600",
+      path: "/app/calendar",
+    },
   ];
+
+  const searchCaseLink = {
+    title: "Search Cases",
+    color: "from-red-600 to-red-700",
+    hoverColor: "hover:from-red-700 hover:to-red-800",
+    focusRing: "focus:ring-red-500",
+    path: "/search",
+  };
 
   const activities = [
     "New case added: State vs. John Doe",
-    "Evidence uploaded for Case #1234",
-    "Witness added: Jane Smith",
-    "Hearing scheduled for Case #5678",
+    "Evidence uploaded for Case #1234: Document_A.pdf",
+    "Witness added: Jane Smith (Case #1234)",
+    "Hearing scheduled for Case #5678: August 25, 2025 at 10:00 AM",
+    "Case #7890 updated: Status changed to 'Pending Review'",
+    "Research document uploaded: 'Legal Precedents in Digital Forensics'",
   ];
 
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto", padding: 32 }}>
-      <h1
-        style={{
-          fontSize: 36,
-          fontWeight: 700,
-          color: "#1E3A5F",
-          marginBottom: 20,
-          letterSpacing: 0.5,
-        }}
-      >
-        Dashboard
-      </h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 font-inter">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Title */}
+        <h1 className="mb-4 text-5xl font-extrabold text-gray-900 md:text-6xl tracking-tight">
+          Dashboard
+        </h1>
+        <p className="mb-12 text-lg text-gray-700 sm:text-xl leading-relaxed">
+          Welcome to{" "}
+          <span className="font-extrabold text-blue-600">CaseMatrixDB</span> — a
+          centralized platform for{" "}
+          <b className="text-gray-800">cases</b>,{" "}
+          <b className="text-gray-800">evidence</b>,{" "}
+          <b className="text-gray-800">witnesses</b>,{" "}
+          <b className="text-gray-800">hearings</b>, and{" "}
+          <b className="text-gray-800">legal research</b>.
+        </p>
 
-      <p style={{ fontSize: 18, color: "#374151", marginBottom: 32 }}>
-        Welcome to{" "}
-        <span style={{ color: "#2563EB", fontWeight: 600 }}>CaseMatrixDB</span>{" "}
-        — Your centralized platform for managing{" "}
-        <b>cases, evidence, witnesses, hearings</b>, and legal research.
-      </p>
+        {/* Quick Links */}
+        <div className="mb-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {quickLinks.map((link, index) => (
+            <button
+              key={index}
+              onClick={() => router.push(link.path)}
+              className={`flex items-center justify-center rounded-3xl p-8 text-center text-2xl font-bold text-white shadow-lg transition-transform transform duration-300 ease-in-out hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 ${link.focusRing} focus:ring-opacity-75
+                         bg-gradient-to-br ${link.color} ${link.hoverColor}`}
+            >
+              {link.title}
+            </button>
+          ))}
+        </div>
 
-      {/* Quick Links */}
-      <div
-        style={{
-          display: "flex",
-          gap: 24,
-          flexWrap: "wrap",
-          marginBottom: 40,
-        }}
-      >
-        {quickLinks.map((item) => (
-          <div
-            key={item.title}
-            style={{
-              flex: "1 1 200px",
-              background: item.color,
-              color: "#fff",
-              borderRadius: 12,
-              padding: "24px 16px",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-              fontWeight: 600,
-              fontSize: 18,
-              textAlign: "center",
-              cursor: "pointer",
-              transition: "transform 0.2s ease, box-shadow 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
-              (e.currentTarget as HTMLElement).style.boxShadow =
-                "0 6px 14px rgba(0,0,0,0.12)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-              (e.currentTarget as HTMLElement).style.boxShadow =
-                "0 4px 10px rgba(0,0,0,0.08)";
-            }}
+        {/* Search Button */}
+        <div className="mb-12">
+          <button
+            onClick={() => router.push(searchCaseLink.path)}
+            className={`w-full rounded-3xl py-6 text-3xl font-bold text-white shadow-lg transition-transform transform duration-300 ease-in-out hover:scale-105 hover:shadow-2xl focus:outline-none focus:ring-4 ${searchCaseLink.focusRing} focus:ring-opacity-75
+                       bg-gradient-to-br ${searchCaseLink.color} ${searchCaseLink.hoverColor}`}
           >
-            {item.title}
-          </div>
-        ))}
-      </div>
+            {searchCaseLink.title}
+          </button>
+        </div>
 
-      {/* Recent Activity */}
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 12,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
-          padding: 32,
-        }}
-      >
-        <h2
-          style={{
-            color: "#1E3A5F",
-            fontSize: 24,
-            fontWeight: 700,
-            marginBottom: 16,
-          }}
-        >
-          Recent Activity
-        </h2>
-        <ul style={{ color: "#374151", fontSize: 16, lineHeight: 2 }}>
-          {activities.map((activity, idx) => {
-            const parts = activity.split(":");
-            return (
-              <li key={idx}>
-                {parts[0]}: <b>{parts[1]?.trim()}</b>
-              </li>
-            );
-          })}
-        </ul>
+        {/* Recent Activity */}
+        <div className="mt-10 rounded-3xl bg-white p-8 shadow-2xl border border-gray-100">
+          <h2 className="mb-6 text-3xl font-extrabold text-gray-900 md:text-4xl">
+            Recent Activity
+          </h2>
+          <ul className="space-y-4 text-base leading-relaxed text-gray-700 sm:text-lg">
+            {activities.map((activity, idx) => {
+              const parts = activity.split(":");
+              return (
+                <li
+                  key={idx}
+                  className="flex items-start bg-gray-50 rounded-xl p-4 shadow-sm hover:shadow-md transition"
+                >
+                  <span className="mr-3 pt-1 text-blue-500 text-xl">•</span>
+                  <span>
+                    <span className="font-medium text-gray-800">
+                      {parts[0]}
+                    </span>
+                    :{" "}
+                    <b className="font-semibold text-gray-900">
+                      {parts[1]?.trim()}
+                    </b>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </div>
     </div>
   );
