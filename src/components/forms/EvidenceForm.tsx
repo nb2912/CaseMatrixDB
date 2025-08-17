@@ -1,22 +1,60 @@
 "use client";
 import React, { useState } from "react";
 
-const EvidenceForm = () => {
+interface EvidenceFormProps {
+  caseId?: string;
+}
+
+const EvidenceForm: React.FC<EvidenceFormProps> = ({ caseId }) => {
   const [formData, setFormData] = useState({
     name: "",
     type: "",
     date: "",
+    file: null as File | null,
   });
+  const [status, setStatus] = useState("");
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    if (type === "file") {
+      const target = e.target as HTMLInputElement;
+      setFormData((prev) => ({ ...prev, file: target.files ? target.files[0] : null }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Evidence Submitted:", formData);
-    // TODO: Send formData to backend API
+    if (!formData.file) {
+      setStatus("Please select a file to upload.");
+      return;
+    }
+    setStatus("Uploading...");
+    const data = new FormData();
+    data.append("file", formData.file);
+    data.append("name", formData.name);
+    data.append("type", formData.type);
+    data.append("date", formData.date);
+    if (caseId) {
+      data.append("caseId", caseId);
+    }
+    try {
+      const res = await fetch("/api/evidence/upload", {
+        method: "POST",
+        body: data,
+      });
+      if (res.ok) {
+        setStatus("Upload successful!");
+        setFormData({ name: "", type: "", date: "", file: null });
+      } else {
+        setStatus("Upload failed.");
+      }
+    } catch (err) {
+      setStatus("Upload error.");
+    }
   };
 
   return (
@@ -48,6 +86,7 @@ const EvidenceForm = () => {
         <option value="Other">Other</option>
       </select>
 
+
       {/* Date Collected */}
       <input
         type="date"
@@ -57,13 +96,24 @@ const EvidenceForm = () => {
         className="mb-4 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-3 text-sm outline-none transition focus:border-[#A21CAF] focus:ring-2 focus:ring-[#A21CAF]/30"
       />
 
+      {/* File Upload */}
+      <input
+        type="file"
+        name="file"
+        accept="*"
+        onChange={handleChange}
+        className="mb-4 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-3 text-sm outline-none transition focus:border-[#A21CAF] focus:ring-2 focus:ring-[#A21CAF]/30"
+        required
+      />
+
       {/* Save Button */}
       <button
         type="submit"
         className="w-full rounded-md bg-[#A21CAF] px-4 py-3 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#86198F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A21CAF]"
       >
-        Save
+        Upload Evidence
       </button>
+      {status && <div className="mt-2 text-sm text-center">{status}</div>}
     </form>
   );
 };
