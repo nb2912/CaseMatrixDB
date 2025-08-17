@@ -1,3 +1,12 @@
+// Async wrappers for UI usage
+export async function getCases(): Promise<CaseEntity[]> {
+  // Simulate async fetch
+  return new Promise(resolve => setTimeout(() => resolve(CaseService.list()), 300));
+}
+
+export async function getCaseById(id: ID): Promise<CaseEntity | undefined> {
+  return new Promise(resolve => setTimeout(() => resolve(CaseService.get(id)), 300));
+}
 import { CaseEntity, ID } from '@/types/entities';
 import { cases, createId } from './data';
 

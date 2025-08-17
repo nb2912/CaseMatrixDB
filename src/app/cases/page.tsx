@@ -2,20 +2,38 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 
-const cases = [
-  { id: '1', title: 'State vs. John Doe', status: 'Open', date: '2025-08-01' },
-  { id: '2', title: 'Acme Corp. vs. Smith', status: 'Closed', date: '2025-07-15' },
-  { id: '3', title: 'People vs. Jane Roe', status: 'In Progress', date: '2025-08-10' },
-];
+
+
+
+
+import { useEffect, useState } from 'react';
+import { getCases } from '@/services/case.service';
 
 export default function CasesPage() {
   const router = useRouter();
+  const [cases, setCases] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const statusColors: Record<string, { bg: string; text: string }> = {
     Open: { bg: '#3FA796', text: '#FFFFFF' },         // Emerald Green
     Closed: { bg: '#E76F51', text: '#FFFFFF' },       // Soft Red
     'In Progress': { bg: '#C6A15B', text: '#FFFFFF' } // Gold
   };
+
+  useEffect(() => {
+    getCases()
+      .then(data => setCases(data))
+      .catch(() => setError('Failed to load cases.'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <div className="container-responsive py-6">Loading cases...</div>;
+  }
+  if (error) {
+    return <div className="container-responsive py-6 text-red-600">{error}</div>;
+  }
 
   return (
     <div className="container-responsive py-6">

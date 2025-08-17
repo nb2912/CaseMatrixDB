@@ -1,3 +1,7 @@
+// Async wrapper for UI usage
+export async function getWitnessesByCaseId(caseId: ID): Promise<WitnessEntity[]> {
+  return new Promise(resolve => setTimeout(() => resolve(WitnessService.list(caseId)), 300));
+}
 import { WitnessEntity, ID } from '@/types/entities';
 import { witnesses, createId } from './data';
 

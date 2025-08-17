@@ -1,14 +1,15 @@
-import { AuthTokenPayload, ID } from '@/types/entities';
+import { AuthTokenPayload, ID, UserRole } from '@/types/entities';
 
 const DEFAULT_TTL_SECONDS = 60 * 60 * 8; // 8 hours
 const SECRET = process.env.NEXT_PUBLIC_JWT_SECRET || 'dev-secret-change-me';
 
 // Simple HMAC-like mock using base64; replace with real JWT in production
-export function generateToken(userId: ID, email: string, ttlSeconds = DEFAULT_TTL_SECONDS): string {
+export function generateToken(userId: ID, email: string, role: UserRole = 'user', ttlSeconds = DEFAULT_TTL_SECONDS): string {
   const now = Math.floor(Date.now() / 1000);
   const payload: AuthTokenPayload = {
     sub: userId,
     email,
+    role,
     iat: now,
     exp: now + ttlSeconds,
   };

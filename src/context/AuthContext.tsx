@@ -1,35 +1,55 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-type User = { email: string } | null;
+export type User = { id: string; email: string; role: string } | null;
 
-interface AuthContextProps {
+export interface AuthContextProps {
   user: User;
-  login: (email: string, password: string) => void;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  checkSession: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextProps>({
   user: null,
-  login: () => {},
-  logout: () => {},
+  login: async () => {},
+  logout: async () => {},
+  checkSession: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User>(null);
 
-  const login = (email: string, password: string) => {
-    // Future enhancement: Replace with API call for authentication
-    setUser({ email });
-    console.log(`User logged in: ${email}`);
+  useEffect(() => {
+    checkSession();
+    // eslint-disable-next-line
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) throw new Error('Invalid credentials');
+    const data = await res.json();
+    setUser(data.user);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
     setUser(null);
-    console.log("User logged out");
+  };
+
+  const checkSession = async () => {
+    const res = await fetch('/api/auth/session');
+    if (!res.ok) return setUser(null);
+    const data = await res.json();
+    if (data.authenticated) setUser(data.user);
+    else setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, checkSession }}>
       {children}
     </AuthContext.Provider>
   );

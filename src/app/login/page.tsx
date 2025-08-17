@@ -1,19 +1,29 @@
 "use client";
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const handleSubmit = (e: React.FormEvent) => {
+  const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({});
+  const router = useRouter();
+  const { login } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const nextErrors: { email?: string; password?: string } = {};
+    const nextErrors: { email?: string; password?: string; form?: string } = {};
     if (!email) nextErrors.email = 'Email is required';
     if (!password) nextErrors.password = 'Password is required';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
-    console.log('Login form submitted', { email, password });
+    try {
+      await login(email, password);
+      router.push('/');
+    } catch (err: any) {
+      setErrors({ form: err.message || 'Login failed.' });
+    }
   };
 
   return (
@@ -52,6 +62,7 @@ export default function LoginPage() {
             </div>
             {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
           </div>
+          {errors.form && <div className="text-red-600 text-sm text-center">{errors.form}</div>}
           <button
             type="submit"
             className="w-full rounded-md bg-gradient-to-r from-[#2563EB] to-[#1E3A5F] px-4 py-3 text-sm font-extrabold text-white shadow-md transition hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#2563EB]"

@@ -23,15 +23,21 @@ export interface WitnessEntity {
   statement: string;
 }
 
+export type UserRole = 'user' | 'lawyer' | 'judge';
+export type LawyerSpecialization = 'civil' | 'criminal' | 'other';
 export interface UserEntity {
   id: ID;
   email: string;
   passwordHash: string; // mock only; do not use in production
+  role: UserRole;
+  specialization?: LawyerSpecialization; // for lawyers only
+  appointedCaseIds?: ID[]; // for lawyers: cases they are appointed to
 }
 
 export interface AuthTokenPayload {
   sub: ID;
   email: string;
+  role: UserRole;
   iat: number;
   exp: number;
 }
