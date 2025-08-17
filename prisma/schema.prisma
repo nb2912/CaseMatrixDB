@@ -1,0 +1,52 @@
+// Prisma schema for CaseMatrixDB
+// Adjust provider to 'postgresql', 'mysql', or 'sqlite' as needed
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql" // Change to your SQL type
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  passwordHash   String
+  role           String
+  specialization String? // for lawyers
+  appointedCases Case[]  @relation("LawyerCases")
+  cases          Case[]  @relation("UserCases")
+}
+
+model Case {
+  id          String   @id @default(uuid())
+  title       String
+  status      String
+  date        DateTime
+  description String?
+  user        User     @relation("UserCases", fields: [userId], references: [id])
+  userId      String
+  lawyer      User?    @relation("LawyerCases", fields: [lawyerId], references: [id])
+  lawyerId    String?
+  evidence    Evidence[]
+  witnesses   Witness[]
+}
+
+model Evidence {
+  id        String   @id @default(uuid())
+  case      Case     @relation(fields: [caseId], references: [id])
+  caseId    String
+  name      String
+  type      String
+  uploaded  DateTime
+}
+
+model Witness {
+  id        String   @id @default(uuid())
+  case      Case     @relation(fields: [caseId], references: [id])
+  caseId    String
+  name      String
+  statement String
+}
