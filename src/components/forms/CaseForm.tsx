@@ -13,8 +13,10 @@ import React, { useState } from 'react';
 import Input from '../shared/Input';
 import Button from '../shared/Button';
 import Toast from '../shared/Toast';
+import { useAuth } from '@/context/AuthContext';
 
 const CaseForm = () => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     status: '',
@@ -27,18 +29,34 @@ const CaseForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.status || !formData.date) {
       setToast({ message: 'All fields are required.', type: 'error' });
       return;
     }
-    setTimeout(() => {
-      setToast({ message: 'Case saved successfully!', type: 'success' });
-      setFormData({ title: '', status: '', date: '' });
-    }, 800);
+    if (!user) {
+      setToast({ message: 'You must be logged in to create a case.', type: 'error' });
+      return;
+    }
+    try {
+      const res = await fetch('/api/cases', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...formData, userId: user.id }),
+      });
+      if (res.ok) {
+        setToast({ message: 'Case saved successfully!', type: 'success' });
+        setFormData({ title: '', status: '', date: '' });
+      } else {
+        setToast({ message: 'Failed to save case.', type: 'error' });
+      }
+    } catch (err) {
+      setToast({ message: 'An error occurred.', type: 'error' });
+    }
   };
-
   return (
     <>
       {toast && (
