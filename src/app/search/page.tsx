@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 
 const dummyResults = [
-  { id: "1", title: "State vs. John Doe", type: "Case" },
+  { id: "1", title: "Shishir vs Pranav", type: "Civil Case" },
   { id: "2", title: "Photo of Crime Scene", type: "Evidence" },
   { id: "3", title: "Jane Smith", type: "Witness" },
   { id: "4", title: "Court Hearing Transcript", type: "Document" },

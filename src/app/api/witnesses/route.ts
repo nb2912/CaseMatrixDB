@@ -11,9 +11,11 @@ export const GET = withLogging(withErrorHandling(async (req: NextRequest) => {
 
 export const POST = withLogging(withErrorHandling(withAuth(async (req: NextRequest) => {
   const body = await req.json();
+  console.log('Request Body:', body);
   const errors = validateWitness(body);
   if (errors.length) return NextResponse.json({ errors }, { status: 400 });
   const created = await WitnessService.create(body);
+  console.log('Created Witness:', created);
   return NextResponse.json(created, { status: 201 });
 })));
 

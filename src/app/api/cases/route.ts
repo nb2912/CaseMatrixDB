@@ -10,9 +10,11 @@ export const GET = withLogging(withErrorHandling(async () => {
 
 export const POST = withLogging(withErrorHandling(withAuth(async (req: NextRequest) => {
   const body = await req.json();
+  console.log('Request Body:', body);
   const errors = validateCase(body);
   if (errors.length) return NextResponse.json({ errors }, { status: 400 });
   const created = await CaseService.create(body);
+  console.log('Created Case:', created);
   return NextResponse.json(created, { status: 201 });
 })));
 

@@ -1,6 +1,10 @@
 import React from "react";
 
-const CalendarWidget = () => {
+interface CalendarWidgetProps {
+  hearingDates: string[];
+}
+
+const CalendarWidget: React.FC<CalendarWidgetProps> = ({ hearingDates }) => {
   const now = new Date();
   const monthName = now.toLocaleString("default", { month: "long" });
   const year = now.getFullYear();
@@ -13,6 +17,8 @@ const CalendarWidget = () => {
   for (let i = 1; i <= totalDays; i++) {
     calendarCells.push(i);
   }
+
+  const formattedHearingDates = hearingDates.map(date => new Date(date).toDateString());
 
   return (
     <div className="rounded-xl bg-white p-6 shadow ring-1 ring-gray-100">
@@ -29,10 +35,13 @@ const CalendarWidget = () => {
       <div className="mt-1 grid grid-cols-7 gap-1 text-center text-sm text-gray-700">
         {calendarCells.map((date, idx) => {
           const isToday = date === now.getDate();
+          const cellDate = new Date(year, now.getMonth(), Number(date));
+          const isHearingDate = formattedHearingDates.includes(cellDate.toDateString());
+
           return (
             <div
               key={idx}
-              className={`${isToday ? 'bg-[#2563EB] text-white font-semibold' : 'text-gray-700'} rounded-md py-1`}
+              className={`rounded-md py-1 ${isToday ? 'bg-[#2563EB] text-white font-semibold' : 'text-gray-700'} ${isHearingDate ? 'bg-red-500 text-white font-bold' : ''}`}
             >
               {date}
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import WitnessForm from '@/components/forms/WitnessForm';
 
 interface WitnessesPageProps {
   params: { caseId: string };
@@ -12,22 +13,23 @@ export default function WitnessesPage({ params }: WitnessesPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchWitnesses = async () => {
-      try {
-        const res = await fetch(`/api/witnesses?caseId=${caseId}`);
-        if (!res.ok) {
-          throw new Error('Failed to fetch witnesses');
-        }
-        const data = await res.json();
-        setWitnesses(data);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message || 'Failed to load witnesses.');
-      } finally {
-        setLoading(false);
+  const fetchWitnesses = async () => {
+    try {
+      const res = await fetch(`/api/witnesses?caseId=${caseId}`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch witnesses');
       }
-    };
+      const data = await res.json();
+      setWitnesses(data);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Failed to load witnesses.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchWitnesses();
   }, [caseId]);
 
@@ -41,6 +43,9 @@ export default function WitnessesPage({ params }: WitnessesPageProps) {
   return (
     <div className="container-responsive py-6">
       <h1 className="mb-4 text-2xl font-extrabold text-[#F59E42]">Witnesses for Case #{caseId}</h1>
+      <div className="mb-8">
+        <WitnessForm caseId={caseId} onWitnessAdded={fetchWitnesses} />
+      </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {witnesses.length > 0 ? witnesses.map((w) => (
           <div
