@@ -5,7 +5,6 @@ import React from 'react';
 
 
 import { useEffect, useState } from 'react';
-import { getCaseById } from '@/services/case.service';
 
 export default function CaseDetailPage({ params }: { params: { caseId: string } }) {
   const [caseData, setCaseData] = useState<any | null>(null);
@@ -19,10 +18,22 @@ export default function CaseDetailPage({ params }: { params: { caseId: string } 
   };
 
   useEffect(() => {
-    getCaseById(params.caseId)
-      .then(data => setCaseData(data))
-      .catch(() => setError('Failed to load case details.'))
-      .finally(() => setLoading(false));
+    const fetchCase = async () => {
+      try {
+        const res = await fetch(`/api/cases/${params.caseId}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch case details');
+        }
+        const data = await res.json();
+        setCaseData(data);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || 'Failed to load case details.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCase();
   }, [params.caseId]);
 
   if (loading) {

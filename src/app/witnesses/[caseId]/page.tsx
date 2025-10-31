@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { getWitnessesByCaseId } from '@/services/witness.service';
+import { useEffect, useState } from "react";
 
 interface WitnessesPageProps {
   params: { caseId: string };
@@ -14,10 +13,22 @@ export default function WitnessesPage({ params }: WitnessesPageProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getWitnessesByCaseId(caseId)
-      .then(data => setWitnesses(data))
-      .catch(() => setError('Failed to load witnesses.'))
-      .finally(() => setLoading(false));
+    const fetchWitnesses = async () => {
+      try {
+        const res = await fetch(`/api/witnesses?caseId=${caseId}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch witnesses');
+        }
+        const data = await res.json();
+        setWitnesses(data);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || 'Failed to load witnesses.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchWitnesses();
   }, [caseId]);
 
   if (loading) {

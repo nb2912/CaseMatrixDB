@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 
 
 import { useEffect, useState } from 'react';
-import { getCases } from '@/services/case.service';
 
 export default function CasesPage() {
   const router = useRouter();
@@ -22,10 +21,23 @@ export default function CasesPage() {
   };
 
   useEffect(() => {
-    getCases()
-      .then(data => setCases(data))
-      .catch(() => setError('Failed to load cases.'))
-      .finally(() => setLoading(false));
+    const fetchCases = async () => {
+      try {
+        const res = await fetch('/api/cases');
+        if (!res.ok) {
+          throw new Error('Failed to fetch cases');
+        }
+        const data = await res.json();
+        console.log(data);
+        setCases(data);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || 'Failed to load cases.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCases();
   }, []);
 
   if (loading) {

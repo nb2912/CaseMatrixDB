@@ -1,21 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { AuthService } from '@/services/auth.service';
 
 export const POST = async (req: NextRequest) => {
   const { email, password, role, specialization } = await req.json();
   try {
-    const user = await prisma.user.create({
-      data: {
-        email,
-        passwordHash: password, // Hash in production!
-        role,
-        specialization: role === 'lawyer' ? specialization : undefined,
-      },
-    });
-    // You can add JWT/cookie logic here if needed
-    return NextResponse.json({ user: { id: user.id, email: user.email, role: user.role, specialization: user.specialization } }, { status: 201 });
-  } catch (err) {
-    return NextResponse.json({ error: 'User already exists or DB error.' }, { status: 400 });
+    const { user, token } = await AuthService.register(email, password, role, specialization);
+    // In a real app, you would set the token in an HttpOnly cookie
+    return NextResponse.json({ user, token }, { status: 201 });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 400 });
   }
 };
 

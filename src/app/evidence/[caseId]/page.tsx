@@ -1,9 +1,5 @@
-"use client";
-
-
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import EvidenceForm from '@/components/forms/EvidenceForm';
-import { getEvidenceByCaseId } from '@/services/evidence.service';
 
 export default function EvidencePage({ params }: { params: { caseId: string } }) {
   const [evidence, setEvidence] = useState<any[]>([]);
@@ -11,10 +7,22 @@ export default function EvidencePage({ params }: { params: { caseId: string } })
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getEvidenceByCaseId(params.caseId)
-      .then(data => setEvidence(data))
-      .catch(() => setError('Failed to load evidence.'))
-      .finally(() => setLoading(false));
+    const fetchEvidence = async () => {
+      try {
+        const res = await fetch(`/api/evidence?caseId=${params.caseId}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch evidence');
+        }
+        const data = await res.json();
+        setEvidence(data);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || 'Failed to load evidence.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvidence();
   }, [params.caseId]);
 
   if (loading) {
