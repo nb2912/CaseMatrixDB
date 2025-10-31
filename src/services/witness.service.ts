@@ -1,32 +1,26 @@
-// Async wrapper for UI usage
-export async function getWitnessesByCaseId(caseId: ID): Promise<WitnessEntity[]> {
-  return new Promise(resolve => setTimeout(() => resolve(WitnessService.list(caseId)), 300));
-}
-import { WitnessEntity, ID } from '@/types/entities';
-import { witnesses, createId } from './data';
+import prisma from '@/lib/prisma';
+import { Witness, Prisma } from '@prisma/client';
 
 export const WitnessService = {
-  list(caseId?: ID): WitnessEntity[] {
-    return caseId ? witnesses.filter(w => w.caseId === caseId) : [...witnesses];
+  async list(caseId?: string): Promise<Witness[]> {
+    return prisma.witness.findMany({ where: { caseId } });
   },
-  get(id: ID): WitnessEntity | undefined { return witnesses.find(w => w.id === id); },
-  create(input: Omit<WitnessEntity, 'id'>): WitnessEntity {
-    const entity: WitnessEntity = { id: createId(), ...input };
-    witnesses.push(entity);
-    return entity;
+
+  async get(id: string): Promise<Witness | null> {
+    return prisma.witness.findUnique({ where: { id } });
   },
-  update(id: ID, input: Partial<Omit<WitnessEntity, 'id'>>): WitnessEntity | undefined {
-    const idx = witnesses.findIndex(w => w.id === id);
-    if (idx === -1) return undefined;
-    witnesses[idx] = { ...witnesses[idx], ...input };
-    return witnesses[idx];
+
+  async create(data: Prisma.WitnessCreateInput): Promise<Witness> {
+    return prisma.witness.create({ data });
   },
-  remove(id: ID): boolean {
-    const idx = witnesses.findIndex(w => w.id === id);
-    if (idx === -1) return false;
-    witnesses.splice(idx, 1);
-    return true;
-  }
+
+  async update(id: string, data: Prisma.WitnessUpdateInput): Promise<Witness | null> {
+    return prisma.witness.update({ where: { id }, data });
+  },
+
+  async remove(id: string): Promise<Witness | null> {
+    return prisma.witness.delete({ where: { id } });
+  },
 };
 
 

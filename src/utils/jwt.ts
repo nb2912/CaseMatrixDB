@@ -33,5 +33,3 @@ export function verifyToken(token?: string): AuthTokenPayload | null {
     return null;
   }
 }
-
-

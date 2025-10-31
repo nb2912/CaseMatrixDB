@@ -1,32 +1,26 @@
-// Async wrapper for UI usage
-export async function getEvidenceByCaseId(caseId: ID): Promise<EvidenceEntity[]> {
-  return new Promise(resolve => setTimeout(() => resolve(EvidenceService.list(caseId)), 300));
-}
-import { EvidenceEntity, ID } from '@/types/entities';
-import { evidences, createId } from './data';
+import prisma from '@/lib/prisma';
+import { Evidence, Prisma } from '@prisma/client';
 
 export const EvidenceService = {
-  list(caseId?: ID): EvidenceEntity[] {
-    return caseId ? evidences.filter(e => e.caseId === caseId) : [...evidences];
+  async list(caseId?: string): Promise<Evidence[]> {
+    return prisma.evidence.findMany({ where: { caseId } });
   },
-  get(id: ID): EvidenceEntity | undefined { return evidences.find(e => e.id === id); },
-  create(input: Omit<EvidenceEntity, 'id'>): EvidenceEntity {
-    const entity: EvidenceEntity = { id: createId(), ...input };
-    evidences.push(entity);
-    return entity;
+
+  async get(id: string): Promise<Evidence | null> {
+    return prisma.evidence.findUnique({ where: { id } });
   },
-  update(id: ID, input: Partial<Omit<EvidenceEntity, 'id'>>): EvidenceEntity | undefined {
-    const idx = evidences.findIndex(e => e.id === id);
-    if (idx === -1) return undefined;
-    evidences[idx] = { ...evidences[idx], ...input };
-    return evidences[idx];
+
+  async create(data: Prisma.EvidenceCreateInput): Promise<Evidence> {
+    return prisma.evidence.create({ data });
   },
-  remove(id: ID): boolean {
-    const idx = evidences.findIndex(e => e.id === id);
-    if (idx === -1) return false;
-    evidences.splice(idx, 1);
-    return true;
-  }
+
+  async update(id: string, data: Prisma.EvidenceUpdateInput): Promise<Evidence | null> {
+    return prisma.evidence.update({ where: { id }, data });
+  },
+
+  async remove(id: string): Promise<Evidence | null> {
+    return prisma.evidence.delete({ where: { id } });
+  },
 };
 
 

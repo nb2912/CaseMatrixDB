@@ -1,35 +1,26 @@
-// Async wrappers for UI usage
-export async function getCases(): Promise<CaseEntity[]> {
-  // Simulate async fetch
-  return new Promise(resolve => setTimeout(() => resolve(CaseService.list()), 300));
-}
-
-export async function getCaseById(id: ID): Promise<CaseEntity | undefined> {
-  return new Promise(resolve => setTimeout(() => resolve(CaseService.get(id)), 300));
-}
-import { CaseEntity, ID } from '@/types/entities';
-import { cases, createId } from './data';
+import prisma from '@/lib/prisma';
+import { Case, Prisma } from '@prisma/client';
 
 export const CaseService = {
-  list(): CaseEntity[] { return [...cases]; },
-  get(id: ID): CaseEntity | undefined { return cases.find(c => c.id === id); },
-  create(input: Omit<CaseEntity, 'id'>): CaseEntity {
-    const entity: CaseEntity = { id: createId(), ...input };
-    cases.push(entity);
-    return entity;
+  async list(): Promise<Case[]> {
+    return prisma.case.findMany();
   },
-  update(id: ID, input: Partial<Omit<CaseEntity, 'id'>>): CaseEntity | undefined {
-    const idx = cases.findIndex(c => c.id === id);
-    if (idx === -1) return undefined;
-    cases[idx] = { ...cases[idx], ...input };
-    return cases[idx];
+
+  async get(id: string): Promise<Case | null> {
+    return prisma.case.findUnique({ where: { id } });
   },
-  remove(id: ID): boolean {
-    const idx = cases.findIndex(c => c.id === id);
-    if (idx === -1) return false;
-    cases.splice(idx, 1);
-    return true;
-  }
+
+  async create(data: Prisma.CaseCreateInput): Promise<Case> {
+    return prisma.case.create({ data });
+  },
+
+  async update(id: string, data: Prisma.CaseUpdateInput): Promise<Case | null> {
+    return prisma.case.update({ where: { id }, data });
+  },
+
+  async remove(id: string): Promise<Case | null> {
+    return prisma.case.delete({ where: { id } });
+  },
 };
 
 
