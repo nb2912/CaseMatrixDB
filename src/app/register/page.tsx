@@ -40,8 +40,9 @@ export default function RegisterPage() {
       // Auto-login after registration
       await login(email, password);
       router.push('/');
-    } catch (err: any) {
-      setError(err.message || 'Registration failed.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Registration failed.';
+      setError(message);
     }
   };
 

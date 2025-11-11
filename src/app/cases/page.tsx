@@ -8,9 +8,16 @@ import { useRouter } from 'next/navigation';
 
 import { useEffect, useState } from 'react';
 
+type CaseSummary = {
+  id: string;
+  title: string;
+  status: 'Open' | 'Closed' | 'In Progress' | string;
+  date: string;
+};
+
 export default function CasesPage() {
   const router = useRouter();
-  const [cases, setCases] = useState<any[]>([]);
+  const [cases, setCases] = useState<CaseSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,12 +34,13 @@ export default function CasesPage() {
         if (!res.ok) {
           throw new Error('Failed to fetch cases');
         }
-        const data = await res.json();
+        const data: CaseSummary[] = await res.json();
         console.log(data);
         setCases(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Failed to load cases.';
         console.error(err);
-        setError(err.message || 'Failed to load cases.');
+        setError(message);
       } finally {
         setLoading(false);
       }

@@ -10,6 +10,7 @@ export function withAuth(handler: RouteHandler): RouteHandler {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     // attach user to context
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (ctx as any).user = payload;
     return handler(req, ctx);
   };

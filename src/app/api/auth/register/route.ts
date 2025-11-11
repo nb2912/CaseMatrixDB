@@ -7,8 +7,9 @@ export const POST = async (req: NextRequest) => {
     const { user, token } = await AuthService.register(email, password, role, specialization);
     // In a real app, you would set the token in an HttpOnly cookie
     return NextResponse.json({ user, token }, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Registration failed';
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 };
 

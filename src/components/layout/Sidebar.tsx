@@ -23,11 +23,11 @@ const navItems = [
 const Sidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const { isOpen, close } = useSidebar();
+  const { close } = useSidebar();
   const { user } = useAuth();
 
   // Role-based nav items
-  let filteredNavItems = navItems.filter(item => {
+  const filteredNavItems = navItems.filter(item => {
     if (!user) {
       // Only show login/register if not logged in
       return item.label === 'Login' || item.label === 'Register';

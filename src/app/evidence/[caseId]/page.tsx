@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 import EvidenceForm from '@/components/forms/EvidenceForm';
 
+type EvidenceItem = { id: string; name: string; type: string };
+
 export default function EvidencePage({ params }: { params: { caseId: string } }) {
-  const [evidence, setEvidence] = useState<any[]>([]);
+  const [evidence, setEvidence] = useState<EvidenceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,11 +17,12 @@ export default function EvidencePage({ params }: { params: { caseId: string } })
         if (!res.ok) {
           throw new Error('Failed to fetch evidence');
         }
-        const data = await res.json();
+        const data: EvidenceItem[] = await res.json();
         setEvidence(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Failed to load evidence.';
         console.error(err);
-        setError(err.message || 'Failed to load evidence.');
+        setError(message);
       } finally {
         setLoading(false);
       }

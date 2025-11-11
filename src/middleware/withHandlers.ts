@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type RouteHandler = (req: NextRequest, ctx: any) => Promise<NextResponse> | NextResponse;
 
 export function withErrorHandling(handler: RouteHandler): RouteHandler {
   return async (req, ctx) => {
     try {
       return await handler(req, ctx);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('API Error:', err);
-      const message = (err && err.message) || 'Internal Server Error';
+      const message = err instanceof Error ? err.message : 'Internal Server Error';
       return NextResponse.json({ error: message }, { status: 500 });
     }
   };

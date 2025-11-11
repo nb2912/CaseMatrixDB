@@ -1,9 +1,11 @@
 "use client";
 import React, { useState } from 'react';
 
+type ChatMessage = { from: 'user' | 'bot'; text: string };
+
 export default function ChatbotPage() {
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const handleSend = () => {
     if (!input.trim()) return;

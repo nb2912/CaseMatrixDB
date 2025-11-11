@@ -2,8 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 
+type Lawyer = { id: string; email: string; specialization: string };
+
 export default function LawyersPage() {
-  const [lawyers, setLawyers] = useState<any[]>([]);
+  const [lawyers, setLawyers] = useState<Lawyer[]>([]);
   const [specialization, setSpecialization] = useState('all');
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -11,7 +13,7 @@ export default function LawyersPage() {
   useEffect(() => {
     fetch('/api/lawyers')
       .then(res => res.json())
-      .then(data => setLawyers(data))
+      .then((data: Lawyer[]) => setLawyers(data))
       .finally(() => setLoading(false));
   }, []);
 

@@ -1,37 +1,40 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import WitnessForm from '@/components/forms/WitnessForm';
 
 interface WitnessesPageProps {
   params: { caseId: string };
 }
 
+type Witness = { id: string; name: string; statement: string };
+
 export default function WitnessesPage({ params }: WitnessesPageProps) {
   const { caseId } = params;
-  const [witnesses, setWitnesses] = useState<any[]>([]);
+  const [witnesses, setWitnesses] = useState<Witness[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchWitnesses = async () => {
+  const fetchWitnesses = useCallback(async () => {
     try {
       const res = await fetch(`/api/witnesses?caseId=${caseId}`);
       if (!res.ok) {
         throw new Error('Failed to fetch witnesses');
       }
-      const data = await res.json();
+      const data: Witness[] = await res.json();
       setWitnesses(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to load witnesses.';
       console.error(err);
-      setError(err.message || 'Failed to load witnesses.');
+      setError(message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [caseId]);
 
   useEffect(() => {
     fetchWitnesses();
-  }, [caseId]);
+  }, [fetchWitnesses]);
 
   if (loading) {
     return <div className="container-responsive py-6">Loading witnesses...</div>;

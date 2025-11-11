@@ -17,7 +17,7 @@ export const apiClient = {
     }
   },
 
-  post: async <T>(url: string, body: any): Promise<ApiResponse<T>> => {
+  post: async <T>(url: string, body: unknown): Promise<ApiResponse<T>> => {
     try {
       // Simulate API call
       await new Promise((res) => setTimeout(res, 300));

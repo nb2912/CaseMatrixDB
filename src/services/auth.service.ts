@@ -16,7 +16,7 @@ export const AuthService = {
       },
     });
 
-    const token = generateToken(user.id, user.email, user.role);
+    const token = generateToken(user.id, user.email, user.role as UserRole);
     return { user, token };
   },
 
@@ -27,7 +27,7 @@ export const AuthService = {
       throw new Error('Invalid credentials');
     }
 
-    const token = generateToken(user.id, user.email, user.role);
+    const token = generateToken(user.id, user.email, user.role as UserRole);
     return { user, token };
   },
 };

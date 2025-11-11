@@ -6,8 +6,16 @@ import React from 'react';
 
 import { useEffect, useState } from 'react';
 
+type CaseDetail = {
+  id: string;
+  title: string;
+  status: 'Open' | 'Closed' | 'Pending' | string;
+  description: string;
+  date: string;
+};
+
 export default function CaseDetailPage({ params }: { params: { caseId: string } }) {
-  const [caseData, setCaseData] = useState<any | null>(null);
+  const [caseData, setCaseData] = useState<CaseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,11 +32,12 @@ export default function CaseDetailPage({ params }: { params: { caseId: string } 
         if (!res.ok) {
           throw new Error('Failed to fetch case details');
         }
-        const data = await res.json();
+        const data: CaseDetail = await res.json();
         setCaseData(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Failed to load case details.';
         console.error(err);
-        setError(err.message || 'Failed to load case details.');
+        setError(message);
       } finally {
         setLoading(false);
       }

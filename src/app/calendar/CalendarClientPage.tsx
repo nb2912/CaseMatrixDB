@@ -19,9 +19,10 @@ export default function CalendarClientPage() {
         }
         const data = await res.json();
         setHearingDates(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Failed to load hearing dates.';
         console.error(err);
-        setError(err.message || 'Failed to load hearing dates.');
+        setError(message);
       } finally {
         setLoading(false);
       }
