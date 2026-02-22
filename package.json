@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.14.0",
@@ -17,9 +18,6 @@
     "prisma": "^6.14.0",
     "react": "19.1.0",
     "react-dom": "19.1.0"
-  },
-  "prisma": {
-    "seed": "node prisma/seed.js"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

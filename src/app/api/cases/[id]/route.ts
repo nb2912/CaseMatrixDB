@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { withErrorHandling, withLogging } from '@/middleware/withHandlers';
 import { withAuth } from '@/middleware/auth';
 import { CaseService } from '@/services/case.service';

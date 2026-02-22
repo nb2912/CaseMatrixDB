@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { withErrorHandling, withLogging } from '@/middleware/withHandlers';
 import { CaseService } from '@/services/case.service';
 
