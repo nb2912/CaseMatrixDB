@@ -47,92 +47,121 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="px-4 py-10">
-      <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
-        <h1 className="mb-6 text-center text-3xl font-extrabold text-[#059669]">Register</h1>
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Email</label>
-            <input
-              type="email"
-              value={email}
-              placeholder="you@example.com"
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-3 text-sm shadow-sm outline-none transition focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/30"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Password</label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                placeholder="••••••••"
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-3 text-sm shadow-sm outline-none transition focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/30"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-[#059669] hover:bg-emerald-200"
-              >
-                {showPassword ? 'Hide' : 'Show'}
-              </button>
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-600 via-primary-900 to-accent-600"></div>
+      <div className="absolute -left-20 -top-20 h-80 w-80 bg-accent-500/5 rounded-full blur-3xl"></div>
+      <div className="absolute -right-20 -bottom-20 h-80 w-80 bg-primary-900/5 rounded-full blur-3xl"></div>
+
+      <div className="w-full max-w-xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Operator Application</h1>
+          <p className="text-slate-500 mt-2 font-medium">Request professional access to CaseMatrixDB records.</p>
+        </div>
+
+        <div className="glass-card p-10 border-slate-200">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Institutional Email</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="name@firm.legal"
+                  className="w-full rounded-xl bg-slate-50 px-4 py-3.5 text-sm font-medium text-slate-700 outline-none transition-all focus:bg-white focus:ring-4 focus:ring-accent-500/10 border border-slate-100 focus:border-accent-500/30"
+                />
+              </div>
+
+              <div>
+                 <div className="flex items-center justify-between mb-2 px-1">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest">Secret Key</label>
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-[10px] font-bold text-accent-600 uppercase">
+                    {showPassword ? 'Hide' : 'Reveal'}
+                  </button>
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full rounded-xl bg-slate-50 px-4 py-3.5 text-sm font-medium text-slate-700 outline-none transition-all focus:bg-white focus:ring-4 focus:ring-accent-500/10 border border-slate-100 focus:border-accent-500/30"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2 px-1">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest">Verify Key</label>
+                  <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="text-[10px] font-bold text-accent-600 uppercase">
+                    {showConfirm ? 'Hide' : 'Reveal'}
+                  </button>
+                </div>
+                <input
+                  type={showConfirm ? 'text' : 'password'}
+                  required
+                  value={confirm}
+                  onChange={e => setConfirm(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full rounded-xl bg-slate-50 px-4 py-3.5 text-sm font-medium text-slate-700 outline-none transition-all focus:bg-white focus:ring-4 focus:ring-accent-500/10 border border-slate-100 focus:border-accent-500/30"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Designated Role</label>
+                <select
+                  value={role}
+                  onChange={e => setRole(e.target.value)}
+                  className="w-full rounded-xl bg-slate-50 px-4 py-3.5 text-sm font-medium text-slate-700 outline-none transition-all focus:bg-white focus:ring-4 focus:ring-accent-500/10 border border-slate-100 focus:border-accent-500/30 appearance-none"
+                >
+                  <option value="user">Public Visitor</option>
+                  <option value="lawyer">Legal Counsel</option>
+                  <option value="judge">Judiciary official</option>
+                </select>
+              </div>
+
+              {role === 'lawyer' ? (
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Specialization</label>
+                  <select
+                    value={specialization}
+                    onChange={e => setSpecialization(e.target.value)}
+                    className="w-full rounded-xl bg-slate-50 px-4 py-3.5 text-sm font-medium text-slate-700 outline-none transition-all focus:bg-white focus:ring-4 focus:ring-accent-500/10 border border-slate-100 focus:border-accent-500/30 appearance-none"
+                  >
+                    <option value="civil">Civil Litigation</option>
+                    <option value="criminal">Criminal Defense</option>
+                    <option value="corporate">Corporate Law</option>
+                    <option value="other">General Practice</option>
+                  </select>
+                </div>
+              ) : (
+                <div className="flex items-center text-[10px] text-slate-400 font-bold uppercase tracking-wider px-2 pt-8">
+                   Registration auto-verified
+                </div>
+              )}
             </div>
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Confirm Password</label>
-            <div className="relative">
-              <input
-                type={showConfirm ? 'text' : 'password'}
-                value={confirm}
-                placeholder="••••••••"
-                onChange={(e) => setConfirm(e.target.value)}
-                className="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-3 text-sm shadow-sm outline-none transition focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/30"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-[#059669] hover:bg-emerald-200"
-              >
-                {showConfirm ? 'Hide' : 'Show'}
-              </button>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Role</label>
-            <select
-              value={role}
-              onChange={e => setRole(e.target.value)}
-              className="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-3 text-sm shadow-sm outline-none transition focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/30"
+
+            {error && (
+              <div className="bg-red-50 border border-red-100 rounded-lg p-3 text-red-600 text-xs font-bold text-center">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="btn-primary w-full py-5 rounded-xl shadow-xl shadow-accent-600/20 text-md letter tracking-wide mt-4"
             >
-              <option value="user">User</option>
-              <option value="lawyer">Lawyer</option>
-              <option value="judge">Judge</option>
-            </select>
+              Verify & Authorize Account
+            </button>
+          </form>
+
+          <div className="mt-8 text-center border-t border-slate-100 pt-8">
+            <p className="text-sm text-slate-400 font-medium">
+              Already authorized? <button onClick={() => router.push('/login')} className="text-accent-600 font-bold hover:underline">Access Terminal</button>
+            </p>
           </div>
-          {role === 'lawyer' && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Specialization</label>
-              <select
-                value={specialization}
-                onChange={e => setSpecialization(e.target.value)}
-                className="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-3 text-sm shadow-sm outline-none transition focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/30"
-              >
-                <option value="civil">Civil</option>
-                <option value="criminal">Criminal</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-          )}
-          {error && <div className="text-red-600 text-sm text-center">{error}</div>}
-          <button
-            type="submit"
-            className="w-full rounded-md bg-[#059669] px-4 py-3 text-sm font-extrabold text-white shadow-md transition hover:bg-[#047857] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#059669]"
-          >
-            Register
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );

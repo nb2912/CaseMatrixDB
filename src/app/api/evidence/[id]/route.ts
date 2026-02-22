@@ -3,21 +3,24 @@ import { withErrorHandling, withLogging } from '@/middleware/withHandlers';
 import { withAuth } from '@/middleware/auth';
 import { EvidenceService } from '@/services/evidence.service';
 
-export const GET = withLogging(withErrorHandling(async (_req: NextRequest, { params }: { params: { id: string } }) => {
-  const found = await EvidenceService.get(params.id);
+export const GET = withLogging(withErrorHandling(async (_req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
+  const found = await EvidenceService.get(id);
   if (!found) return NextResponse.json({ error: 'Evidence not found' }, { status: 404 });
   return NextResponse.json(found, { status: 200 });
 }));
 
-export const PUT = withLogging(withErrorHandling(withAuth(async (req: NextRequest, { params }: { params: { id: string } }) => {
+export const PUT = withLogging(withErrorHandling(withAuth(async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
   const body = await req.json();
-  const updated = await EvidenceService.update(params.id, body);
+  const updated = await EvidenceService.update(id, body);
   if (!updated) return NextResponse.json({ error: 'Evidence not found' }, { status: 404 });
   return NextResponse.json(updated, { status: 200 });
 })));
 
-export const DELETE = withLogging(withErrorHandling(withAuth(async (_req: NextRequest, { params }: { params: { id: string } }) => {
-  const ok = await EvidenceService.remove(params.id);
+export const DELETE = withLogging(withErrorHandling(withAuth(async (_req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
+  const ok = await EvidenceService.remove(id);
   if (!ok) return NextResponse.json({ error: 'Evidence not found' }, { status: 404 });
   return NextResponse.json({ success: true }, { status: 200 });
 })));

@@ -1,30 +1,23 @@
 "use client";
 
-
-
-
-
-
-
-
-
-
 import React, { useState } from 'react';
-import Input from '../shared/Input';
-import Button from '../shared/Button';
 import Toast from '../shared/Toast';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 const CaseForm = () => {
   const { user } = useAuth();
+  const router = useRouter();
   const [formData, setFormData] = useState({
     title: '',
     status: '',
     date: '',
+    description: '',
   });
+  const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -32,31 +25,35 @@ const CaseForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.status || !formData.date) {
-      setToast({ message: 'All fields are required.', type: 'error' });
+      setToast({ message: 'All mandatory fields must be completed.', type: 'error' });
       return;
     }
     if (!user) {
-      setToast({ message: 'You must be logged in to create a case.', type: 'error' });
+      setToast({ message: 'Authentication required for record creation.', type: 'error' });
       return;
     }
+
+    setLoading(true);
     try {
       const res = await fetch('/api/cases', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, userId: user.id }),
       });
       if (res.ok) {
-        setToast({ message: 'Case saved successfully!', type: 'success' });
-        setFormData({ title: '', status: '', date: '' });
+        setToast({ message: 'New dossier registered successfully.', type: 'success' });
+        setFormData({ title: '', status: '', date: '', description: '' });
+        setTimeout(() => router.push('/cases'), 1500);
       } else {
-        setToast({ message: 'Failed to save case.', type: 'error' });
+        setToast({ message: 'Failed to synchronize record with matrix.', type: 'error' });
       }
     } catch (err) {
-      setToast({ message: 'An error occurred.', type: 'error' });
+      setToast({ message: 'Central database connection error.', type: 'error' });
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <>
       {toast && (
@@ -66,48 +63,76 @@ const CaseForm = () => {
           onClose={() => setToast(null)}
         />
       )}
-      <form onSubmit={handleSubmit} className="rounded-xl bg-white p-6 shadow ring-1 ring-gray-100">
-        <h2 className="mb-4 text-lg font-semibold text-[#1E3A5F]">Add / Edit Case</h2>
-        <Input
-          type="text"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          placeholder="Case Title"
-          label="Case Title"
-          ariaLabel="Case Title"
-        />
-        <div className="mb-4">
-          <label htmlFor="status" className="block mb-1 font-medium text-gray-700">Status</label>
-          <select
-            id="status"
-            name="status"
-            value={formData.status}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Case Narrative / Title</label>
+          <input
+            type="text"
+            name="title"
+            required
+            value={formData.title}
             onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 bg-white px-3 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
-            aria-label="Status"
-          >
-            <option value="">Select Status</option>
-            <option value="Open" style={{ color: '#059669' }}>Open</option>
-            <option value="Pending" style={{ color: '#F59E42' }}>Pending</option>
-            <option value="Closed" style={{ color: '#DC2626' }}>Closed</option>
-          </select>
+            placeholder="e.g. State vs. Anderson - Property Dispute"
+            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500/30 transition-all font-medium"
+          />
         </div>
-        <Input
-          type="date"
-          name="date"
-          value={formData.date}
-          onChange={handleChange}
-          label="Date"
-          ariaLabel="Date"
-        />
-        <Button
+
+        <div>
+          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Detailed Briefing</label>
+          <textarea
+            name="description"
+            rows={4}
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="Provide initial details of the legal matter..."
+            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500/30 transition-all font-medium"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Operational Status</label>
+            <select
+              name="status"
+              required
+              value={formData.status}
+              onChange={handleChange}
+              className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500/30 transition-all font-medium appearance-none"
+            >
+              <option value="">Select Priority</option>
+              <option value="Open">Active Litigation</option>
+              <option value="Pending">Preliminary Processing</option>
+              <option value="In Progress">Discovery / Investigation</option>
+              <option value="Closed">Archived / Resolved</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Filing Date</label>
+            <input
+              type="date"
+              name="date"
+              required
+              value={formData.date}
+              onChange={handleChange}
+              className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500/30 transition-all font-medium"
+            />
+          </div>
+        </div>
+
+        <button
           type="submit"
-          className="w-full bg-[#2563EB] px-4 py-3 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#1D4ED8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#2563EB]"
-          ariaLabel="Save Case"
+          disabled={loading}
+          className="btn-primary w-full py-4 mt-6 flex items-center justify-center gap-2 group disabled:opacity-50"
         >
-          Save
-        </Button>
+          {loading ? (
+             <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
+          ) : (
+            <svg className="h-4 w-4 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          )}
+          {loading ? 'Synchronizing...' : 'Register Formal Case dossier'}
+        </button>
       </form>
     </>
   );

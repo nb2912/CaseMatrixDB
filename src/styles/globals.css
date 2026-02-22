@@ -1,15 +1,31 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary-900: #0f172a;
+  --color-primary-800: #1e293b;
+  --color-primary-700: #334155;
+  --color-accent-600: #2563eb;
+  --color-accent-500: #3b82f6;
+  --color-surface-50: #f8fafc;
+  --color-surface-100: #f1f5f9;
+}
+
 /* Base typography & body styles */
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
   html, body {
-    @apply h-full bg-gray-50 text-gray-800 antialiased;
+    @apply h-full bg-surface-50 text-slate-800 antialiased;
   }
+
   body {
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   }
+
   h1, h2, h3, h4, h5, h6 {
-    @apply text-gray-900 tracking-tight;
+    @apply text-primary-900 tracking-tight font-bold;
   }
 }
 
@@ -17,6 +33,18 @@
 @layer utilities {
   .container-responsive {
     @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-sm rounded-2xl;
+  }
+
+  .btn-primary {
+    @apply px-4 py-2 bg-primary-900 text-white font-semibold rounded-lg hover:bg-primary-800 transition-all shadow-sm;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 bg-white border border-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all shadow-sm;
   }
 }
 

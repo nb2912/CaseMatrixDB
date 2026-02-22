@@ -28,49 +28,91 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-gradient-to-br from-[#2563EB] to-[#1E3A5F] px-4 py-10">
-      <div className="w-full max-w-md rounded-2xl bg-white/95 p-8 shadow-2xl">
-        <h1 className="mb-6 text-center text-3xl font-extrabold text-[#2563EB]">Login</h1>
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          <div>
-            <label className="block text-sm font-semibold text-[#1E3A5F]">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className={`mt-1 w-full rounded-md bg-gray-50 px-3 py-3 text-sm shadow-sm outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/40 ${errors.email ? 'border-red-400 focus:border-red-500 focus:ring-red-200 border' : 'border border-indigo-200'}`}
-            />
-            {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-600 via-primary-900 to-accent-600"></div>
+      <div className="absolute -left-20 -top-20 h-80 w-80 bg-accent-500/5 rounded-full blur-3xl"></div>
+      <div className="absolute -right-20 -bottom-20 h-80 w-80 bg-primary-900/5 rounded-full blur-3xl"></div>
+
+      <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="text-center mb-10">
+          <div className="h-16 w-16 bg-primary-900 rounded-2xl rotate-3 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-primary-900/20">
+             <svg className="h-8 w-8 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 01-6.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+            </svg>
           </div>
-          <div>
-            <label className="block text-sm font-semibold text-[#1E3A5F]">Password</label>
-            <div className="relative">
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">System Auth</h1>
+          <p className="text-slate-500 mt-2 font-medium">Access your CaseMatrixDB terminal.</p>
+        </div>
+
+        <div className="glass-card p-10 border-slate-200">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Email Terminal</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="operator@casematrix.db"
+                className={`w-full rounded-xl bg-slate-50 px-4 py-4 text-sm font-medium text-slate-700 outline-none transition-all focus:bg-white focus:ring-4 focus:ring-accent-500/10 border ${errors.email ? 'border-red-300' : 'border-slate-100 focus:border-accent-500/30'}`}
+              />
+              {errors.email && <p className="mt-2 text-xs font-bold text-red-500 px-1">{errors.email}</p>}
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2 px-1">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest">Access Key</label>
+                <div className="flex gap-4">
+                  <button 
+                    type="button"
+                    onClick={() => router.push('/forgot-password')}
+                    className="text-[10px] font-bold text-slate-400 uppercase hover:text-accent-600 transition-colors"
+                  >
+                    Forgot Key?
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-[10px] font-bold text-accent-600 uppercase hover:underline"
+                  >
+                    {showPassword ? 'Mask' : 'Reveal'}
+                  </button>
+                </div>
+              </div>
               <input
                 type={showPassword ? 'text' : 'password'}
+                required
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className={`mt-1 w-full rounded-md bg-gray-50 px-3 py-3 text-sm shadow-sm outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/40 ${errors.password ? 'border-red-400 focus:border-red-500 focus:ring-red-200 border' : 'border border-indigo-200'}`}
+                className={`w-full rounded-xl bg-slate-50 px-4 py-4 text-sm font-medium text-slate-700 outline-none transition-all focus:bg-white focus:ring-4 focus:ring-accent-500/10 border ${errors.password ? 'border-red-300' : 'border-slate-100 focus:border-accent-500/30'}`}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-indigo-100 px-2 py-1 text-xs font-semibold text-[#2563EB] hover:bg-indigo-200"
-              >
-                {showPassword ? 'Hide' : 'Show'}
-              </button>
+              {errors.password && <p className="mt-2 text-xs font-bold text-red-500 px-1">{errors.password}</p>}
             </div>
-            {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
+
+            {errors.form && (
+              <div className="bg-red-50 border border-red-100 rounded-lg p-3 text-red-600 text-xs font-bold text-center">
+                {errors.form}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="btn-primary w-full py-5 rounded-xl shadow-xl shadow-accent-600/20 text-md letter tracking-wide"
+            >
+              Initialize Session
+            </button>
+          </form>
+
+          <div className="mt-8 text-center border-t border-slate-100 pt-8">
+            <p className="text-sm text-slate-400 font-medium">
+              New operator? <button onClick={() => router.push('/register')} className="text-accent-600 font-bold hover:underline">Apply for Access</button>
+            </p>
           </div>
-          {errors.form && <div className="text-red-600 text-sm text-center">{errors.form}</div>}
-          <button
-            type="submit"
-            className="w-full rounded-md bg-gradient-to-r from-[#2563EB] to-[#1E3A5F] px-4 py-3 text-sm font-extrabold text-white shadow-md transition hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#2563EB]"
-          >
-            Login
-          </button>
-        </form>
+        </div>
+
+        
       </div>
     </div>
   );

@@ -1,129 +1,160 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation"; 
+import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const [counts, setCounts] = useState({ cases: 0, witnesses: 0, evidence: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        const [casesRes, witnessesRes, evidenceRes] = await Promise.all([
+          fetch('/api/cases'),
+          fetch('/api/witnesses'),
+          fetch('/api/evidence')
+        ]);
+        
+        const cases = casesRes.ok ? await casesRes.json() : [];
+        const witnesses = witnessesRes.ok ? await witnessesRes.json() : [];
+        const evidence = evidenceRes.ok ? await evidenceRes.json() : [];
+
+        setCounts({
+          cases: Array.isArray(cases) ? cases.length : 0,
+          witnesses: Array.isArray(witnesses) ? witnesses.length : 0,
+          evidence: Array.isArray(evidence) ? evidence.length : 0,
+        });
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchDashboardData();
+  }, []);
+
+  const stats = [
+    { label: "Active Cases", value: counts.cases, icon: "⚖️" },
+    { label: "Total Evidence", value: counts.evidence, icon: "📁" },
+    { label: "Witnesses", value: counts.witnesses, icon: "👥" },
+    { label: "System Status", value: "Active", icon: "🌐" },
+  ];
 
   const quickLinks = [
     {
       title: "View All Cases",
-      color: "from-blue-600 to-blue-700",
-      hoverColor: "hover:from-blue-700 hover:to-blue-800",
-      focusRing: "focus:ring-blue-500",
+      description: "Manage and track all ongoing legal matters.",
       path: "/cases",
+      icon: (
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      )
     },
     {
-      title: "Upload Evidence",
-      color: "from-emerald-600 to-emerald-700",
-      hoverColor: "hover:from-emerald-700 hover:to-emerald-800",
-      focusRing: "focus:ring-emerald-500",
-      path: "/evidence/new",
+      title: "Register New Case",
+      description: "Initialize a new legal dossier in the matrix.",
+      path: "/cases/new",
+      icon: (
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+      )
     },
     {
-      title: "Manage Witnesses",
-      color: "from-orange-500 to-orange-600",
-      hoverColor: "hover:from-orange-600 hover:to-orange-700",
-      focusRing: "focus:ring-orange-400",
-      path: "/witnesses/1234",
+      title: "Search Database",
+      description: "Find cases, witnesses, or evidence quickly.",
+      path: "/search",
+      icon: (
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      )
     },
     {
-      title: "Hearing Calendar",
-      color: "from-purple-700 to-purple-800",
-      hoverColor: "hover:from-purple-800 hover:to-purple-900",
-      focusRing: "focus:ring-purple-600",
-      path: "/calendar",
+      title: "Legal Assistant",
+      description: "Get real-time clarity on legal procedures.",
+      path: "/chatbot",
+      icon: (
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+        </svg>
+      )
     },
-  ];
-
-  const searchCaseLink = {
-    title: "Search Cases",
-    color: "from-red-600 to-red-700",
-    hoverColor: "hover:from-red-700 hover:to-red-800",
-    focusRing: "focus:ring-red-500",
-    path: "/search",
-  };
-
-  const activities = [
-    "New case added: State vs. John Doe",
-    "Evidence uploaded for Case #1234: Document_A.pdf",
-    "Witness added: Jane Smith (Case #1234)",
-    "Hearing scheduled for Case #5678: August 25, 2025 at 10:00 AM",
-    "Case #7890 updated: Status changed to 'Pending Review'",
-    "Research document uploaded: 'Legal Precedents in Digital Forensics'",
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-10">
-      <div className="container-responsive">
-        {/* Title */}
-        <h1 className="mb-2 text-4xl font-extrabold text-gray-900 md:text-5xl tracking-tight">
-          Dashboard
-        </h1>
-        <p className="mb-10 text-base text-gray-700 sm:text-lg leading-relaxed">
-          Welcome to{" "}
-          <span className="font-extrabold text-blue-600">CaseMatrixDB</span> — a
-          centralized platform for{" "}
-          <b className="text-gray-800">cases</b>,{" "}
-          <b className="text-gray-800">evidence</b>,{" "}
-          <b className="text-gray-800">witnesses</b>,{" "}
-          <b className="text-gray-800">hearings</b>, and{" "}
-          <b className="text-gray-800">legal research</b>.
+    <div className="space-y-10 animate-in fade-in duration-500">
+      <header>
+        <h1 className="text-3xl font-black text-slate-900 tracking-tight">System Overview</h1>
+        <p className="text-slate-500 mt-1 font-medium">
+          {user ? `Welcome back, ${user.email.split('@')[0]}. Monitoring active dossiers.` : "Verifying system permissions..."}
         </p>
+      </header>
 
-        {/* Quick Links */}
-        <div className="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {quickLinks.map((link, index) => (
-            <button
-              key={index}
-              onClick={() => router.push(link.path)}
-              className={`group relative flex items-center justify-center rounded-2xl p-8 text-center text-xl font-bold text-white shadow-md transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${link.focusRing} 
-                         bg-gradient-to-br ${link.color} ${link.hoverColor}`}
-            >
-              {link.title}
-            </button>
-          ))}
-        </div>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, i) => (
+          <div key={i} className="glass-card p-6 border-slate-200">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-2xl">{stat.icon}</span>
+              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            </div>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
+            <p className="text-3xl font-black text-slate-900 mt-1">
+              {loading ? "..." : stat.value}
+            </p>
+          </div>
+        ))}
+      </div>
 
-        {/* Search Button */}
-        <div className="mb-10">
-          <button
-            onClick={() => router.push(searchCaseLink.path)}
-            className={`w-full rounded-2xl py-5 text-2xl font-bold text-white shadow-md transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${searchCaseLink.focusRing} 
-                       bg-gradient-to-br ${searchCaseLink.color} ${searchCaseLink.hoverColor}`}
-          >
-            {searchCaseLink.title}
-          </button>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="mt-10 rounded-2xl bg-white p-6 shadow-lg border border-gray-100">
-          <h2 className="mb-4 text-2xl font-extrabold text-gray-900 md:text-3xl">
-            Recent Activity
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        {/* Quick Actions */}
+        <div className="lg:col-span-2 space-y-6">
+          <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
+            <span className="h-1 w-6 bg-accent-500 rounded-full"></span>
+            Operational Commands
           </h2>
-          <ul className="space-y-3 text-sm leading-relaxed text-gray-700 sm:text-base">
-            {activities.map((activity, idx) => {
-              const parts = activity.split(":");
-              return (
-                <li
-                  key={idx}
-                  className="flex items-start bg-gray-50 rounded-xl p-4 shadow-sm ring-1 ring-gray-100 hover:bg-gray-100/80 transition"
-                >
-                  <span className="mr-3 pt-1 text-blue-500 text-xl">•</span>
-                  <span>
-                    <span className="font-medium text-gray-800">
-                      {parts[0]}
-                    </span>
-                    :{" "}
-                    <b className="font-semibold text-gray-900">
-                      {parts[1]?.trim()}
-                    </b>
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {quickLinks.map((link, i) => (
+              <button
+                key={i}
+                onClick={() => router.push(link.path)}
+                className="group p-8 text-left glass-card border-slate-200 hover:border-accent-500/50 hover:bg-white transition-all hover:shadow-xl hover:-translate-y-1"
+              >
+                <div className="h-12 w-12 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center mb-6 group-hover:bg-primary-900 group-hover:text-accent-500 transition-all">
+                  {link.icon}
+                </div>
+                <h3 className="font-bold text-slate-900 mb-2">{link.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">{link.description}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Security Notice / Status */}
+        <div className="space-y-6">
+          <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
+            <span className="h-1 w-6 bg-accent-500 rounded-full"></span>
+            Security Advisory
+          </h2>
+          <div className="glass-card p-8 border-slate-200 bg-primary-900 text-white relative overflow-hidden">
+            <div className="relative z-10">
+              <h3 className="font-bold mb-4 text-emerald-400 flex items-center gap-2">
+                 <div className="h-2 w-2 rounded-full bg-emerald-400"></div>
+                 Active Session Secure
+              </h3>
+              <p className="text-sm text-slate-400 font-medium leading-relaxed">
+                All data transmission is encrypted. Case records are immutable once sealed. Please ensure you sign out from your terminal when leaving.
+              </p>
+            
+            </div>
+            <div className="absolute -right-10 -bottom-10 h-40 w-40 bg-accent-500/10 rounded-full blur-3xl"></div>
+          </div>
         </div>
       </div>
     </div>
