@@ -5,7 +5,7 @@ interface ApiResponse<T> {
 }
 
 export const apiClient = {
-  get: async <T>(_url: string): Promise<ApiResponse<T>> => {
+  get: async <T>(): Promise<ApiResponse<T>> => {
     try {
       // Simulate API call
       await new Promise((res) => setTimeout(res, 300));
@@ -15,7 +15,7 @@ export const apiClient = {
     }
   },
 
-  post: async <T>(_url: string, body: unknown): Promise<ApiResponse<T>> => {
+  post: async <T>(_: string, body: unknown): Promise<ApiResponse<T>> => {
     try {
       // Simulate API call
       await new Promise((res) => setTimeout(res, 300));

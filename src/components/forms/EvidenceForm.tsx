@@ -1,7 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import Input from '../shared/Input';
-import Button from '../shared/Button';
 import Toast from '../shared/Toast';
 
 interface EvidenceFormProps {
@@ -57,7 +55,7 @@ const EvidenceForm: React.FC<EvidenceFormProps> = ({ caseId, onCreated }) => {
       } else {
         setToast({ message: 'Archive registration failed.', type: 'error' });
       }
-    } catch (err) {
+    } catch {
       setToast({ message: 'Archive connection error.', type: 'error' });
     } finally {
       setLoading(false);
