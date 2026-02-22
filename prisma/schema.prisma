@@ -18,6 +18,18 @@ model User {
   specialization String? // for lawyers
   appointedCases Case[]  @relation("LawyerCases")
   cases          Case[]  @relation("UserCases")
+  chatMessages   ChatMessage[]
+  resetToken       String?
+  resetTokenExpiry DateTime?
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  role      String   // 'user' or 'assistant'
+  content   String   @db.Text
+  timestamp DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
 }
 
 model Case {

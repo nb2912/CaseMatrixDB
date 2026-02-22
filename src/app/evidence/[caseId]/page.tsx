@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import EvidenceForm from '@/components/forms/EvidenceForm';
 
@@ -11,24 +11,23 @@ export default function EvidencePage({ params }: { params: Promise<{ caseId: str
   const router = useRouter();
   const [evidence, setEvidence] = useState<EvidenceItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchEvidence = async () => {
+  const fetchEvidence = useCallback(async () => {
     try {
       const res = await fetch(`/api/evidence?caseId=${caseId}`);
       if (!res.ok) throw new Error('Failed to fetch evidence');
       const data: EvidenceItem[] = await res.json();
       setEvidence(data);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to load evidence.');
+    } catch {
+      // Failed to load evidence
     } finally {
       setLoading(false);
     }
-  };
+  }, [caseId]);
 
   useEffect(() => {
     fetchEvidence();
-  }, [caseId]);
+  }, [fetchEvidence]);
 
   if (loading) return <div className="p-10 text-center font-medium text-slate-500">Scanning evidence vaults...</div>;
 

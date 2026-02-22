@@ -47,7 +47,7 @@ const CaseForm = () => {
       } else {
         setToast({ message: 'Failed to synchronize record with matrix.', type: 'error' });
       }
-    } catch (err) {
+    } catch {
       setToast({ message: 'Central database connection error.', type: 'error' });
     } finally {
       setLoading(false);

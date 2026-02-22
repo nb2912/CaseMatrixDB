@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { UserEntity } from '@/types/entities';
 
 type Message = {
   id: string;
@@ -19,28 +20,50 @@ const SUGGESTIONS = [
 
 export default function ChatbotPage() {
   const { user } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: `Greetings. I am CaseMatrix AI, your legal procedural assistant. How can I provide clarity on your legal matter today?`,
-      timestamp: new Date(),
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [lawyers, setLawyers] = useState<any[]>([]);
+  const [lawyers, setLawyers] = useState<UserEntity[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Fetch lawyers for matching
   useEffect(() => {
     async function fetchLawyers() {
       try {
         const res = await fetch('/api/lawyers');
         if (res.ok) setLawyers(await res.json());
-      } catch (err) { console.error(err); }
+      } catch (err: unknown) { console.error(err); }
     }
     fetchLawyers();
   }, []);
+
+  // Fetch chat history
+  useEffect(() => {
+    async function fetchChatHistory() {
+      if (!user?.id) return;
+      try {
+        const res = await fetch(`/api/chat?userId=${user.id}`);
+        if (res.ok) {
+          const history = await res.json();
+          if (history.length > 0) {
+            setMessages(history.map((m: { role: 'user' | 'assistant'; content: string; timestamp: string; id: string }) => ({
+              ...m,
+              timestamp: new Date(m.timestamp)
+            })));
+          } else {
+            // Initial welcome if no history
+            setMessages([{
+              id: '1',
+              role: 'assistant',
+              content: `Greetings. I am CaseMatrix AI, your legal procedural assistant. How can I provide clarity on your legal matter today?`,
+              timestamp: new Date(),
+            }]);
+          }
+        }
+      } catch (err: unknown) { console.error('History fetch error:', err); }
+    }
+    fetchChatHistory();
+  }, [user?.id]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -49,16 +72,25 @@ export default function ChatbotPage() {
   }, [messages]);
 
   const handleSend = async (text: string = input) => {
-    if (!text.trim() || isLoading) return;
+    if (!text.trim() || isLoading || !user?.id) return;
 
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: text,
-      timestamp: new Date(),
-    };
+    // 1. Save and update User Message
+    try {
+      const saveUserRes = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, role: 'user', content: text }),
+      });
+      
+      if (saveUserRes.ok) {
+        const savedMsg = await saveUserRes.json();
+        setMessages(prev => [...prev, { ...savedMsg, timestamp: new Date(savedMsg.timestamp) }]);
+      } else {
+        // Fallback for UI if API fails
+        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: text, timestamp: new Date() }]);
+      }
+    } catch (err: unknown) { console.error(err); }
 
-    setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
 
@@ -70,27 +102,82 @@ export default function ChatbotPage() {
       let response = "";
       let specialization = "";
 
-      if (lowerText.includes('property') || lowerText.includes('land') || lowerText.includes('house') || lowerText.includes('rent')) {
-        category = "Civil Litigation (Property)";
-        specialization = "civil";
-        response = "I have analyzed your situation as a Property Law matter. These cases typically require verification of title deeds and encumbrance certificates. I recommend initiating a legal notice as the first procedural step.";
-      } else if (lowerText.includes('criminal') || lowerText.includes('theft') || lowerText.includes('assault') || lowerText.includes('fraud')) {
-        category = "Criminal Defense";
-        specialization = "criminal";
-        response = "Your situation is categorized under Criminal Law. This is a sensitive matter requiring immediate response to FIRs or summons. You should prepare all relevant alibi or documentary evidence immediately.";
-      } else if (lowerText.includes('company') || lowerText.includes('contract') || lowerText.includes('business') || lowerText.includes('partnership')) {
-        category = "Corporate Law";
-        specialization = "corporate";
-        response = "This falls under Corporate/Business Law. Procedural clarity here often involves reviewing existing MoUs, contracts, and partnership agreements to check for breach clauses.";
-      } else if (lowerText.includes('divorce') || lowerText.includes('family') || lowerText.includes('marriage') || lowerText.includes('custody')) {
-        category = "Family Law";
-        specialization = "family";
-        response = "I categorize this as a Family Law matter. These procedures often begin with mediation or filing in specialized family courts. Documentation of familial records will be essential.";
+      // HEURISTIC ENGINE: Multi-Cluster Keyword Mapping
+      const wordMap = [
+        {
+          keywords: ['property', 'land', 'house', 'rent', 'eviction', 'title', 'deed', 'ancestral'],
+          name: "Civil Litigation (Property)",
+          slug: "civil",
+          advice: "Property disputes often require specialized verification of title deeds and encumbrance certificates. I recommend a formal legal notice as your first procedural step."
+        },
+        {
+          keywords: ['criminal', 'theft', 'assault', 'fraud', 'arrest', 'police', 'fir', 'murder', 'bail'],
+          name: "Criminal Defense",
+          slug: "criminal",
+          advice: "Criminal matters are high-priority. Ensure you have a certified copy of any FIR or summons. Prepare a detailed chronological list of events for your defense."
+        },
+        {
+          keywords: ['company', 'contract', 'business', 'partnership', 'breach', 'merger', 'agreement'],
+          name: "Corporate Law",
+          slug: "corporate",
+          advice: "Corporate disputes usually pivot on the specific clauses in your MoUs or Service Agreements. Review the 'Dispute Resolution' section for arbitration clauses."
+        },
+        {
+          keywords: ['divorce', 'family', 'marriage', 'custody', 'alimony', 'maintenance', 'adoption'],
+          name: "Family Law",
+          slug: "family",
+          advice: "Family matters are handled in specialized courts. Documentation of marriage records, income statements, or custodial history will be vital for your case filing."
+        },
+        {
+          keywords: ['employment', 'salary', 'labour', 'termination', 'provident', 'harassment', 'workplace'],
+          name: "Employment & Labour Law",
+          slug: "employment",
+          advice: "Employment issues often start with a complaint to the Labour Commissioner or HR. Save all official emails and termination notices as critical evidence."
+        },
+        {
+          keywords: ['accident', 'injury', 'medical', 'negligence', 'hospital', 'crash', 'compensation'],
+          name: "Personal Injury & Torts",
+          slug: "injury",
+          advice: "In injury cases, medical certificates and police accident reports (FIR/CSR) are mandatory. Claims are typically filed in the Motor Accident Claims Tribunal (MACT)."
+        },
+        {
+          keywords: ['tax', 'income', 'gst', 'audit', 'notice', 'tds', 'investment'],
+          name: "Taxation Law",
+          slug: "tax",
+          advice: "Taxation disputes often involve responding to specific assessment notices. Collate your financial statements and previous filings before proceeding."
+        },
+        {
+          keywords: ['patent', 'trademark', 'copyright', 'piracy', 'logo', 'brand', 'intellectual'],
+          name: "Intellectual Property (IP)",
+          slug: "ip",
+          advice: "IP protection is strictly time-bound. Verify your registration certificates and document any 'prior use' of the brand or invention."
+        },
+        {
+          keywords: ['cyber', 'online', 'hacking', 'data', 'phishing', 'privacy', 'social media'],
+          name: "Cyber & Information Tech Law",
+          slug: "cyber",
+          advice: "Cyber crimes require digital forensics. Do not delete any chat logs or transaction IDs; these are treated as primary electronic evidence."
+        },
+        {
+          keywords: ['consumer', 'product', 'service', 'warranty', 'refund', 'ad', 'misleading'],
+          name: "Consumer Protection",
+          slug: "consumer",
+          advice: "Consumer cases are filed in District Commissions. You will need proof of purchase (invoice) and evidence of the service deficiency or product defect."
+        }
+      ];
+
+      const match = wordMap.find(cluster => 
+        cluster.keywords.some(word => lowerText.includes(word))
+      );
+
+      if (match) {
+        category = match.name;
+        specialization = match.slug;
+        response = match.advice;
       } else {
         response = "I have received your overview. To provide a precise categorization and counsel recommendation, could you clarify if this involves property, criminal allegations, or business contracts?";
       }
 
-      // Suggest a lawyer
       let suggestionText = "";
       if (specialization) {
         const suggestedLawyer = lawyers.find(l => l.specialization?.toLowerCase() === specialization);
@@ -101,15 +188,23 @@ export default function ChatbotPage() {
         }
       }
 
-      const botMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: response + suggestionText,
-        timestamp: new Date(),
-      };
+      const finalContent = response + suggestionText;
 
-      setMessages(prev => [...prev, botMsg]);
-    } catch (err) {
+      // 2. Save and update Assistant Message
+      const saveBotRes = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, role: 'assistant', content: finalContent }),
+      });
+
+      if (saveBotRes.ok) {
+        const savedBotMsg = await saveBotRes.json();
+        setMessages(prev => [...prev, { ...savedBotMsg, timestamp: new Date(savedBotMsg.timestamp) }]);
+      } else {
+        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: finalContent, timestamp: new Date() }]);
+      }
+
+    } catch (err: unknown) {
       console.error(err);
     } finally {
       setIsLoading(false);

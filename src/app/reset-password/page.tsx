@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function ResetPasswordPage() {
+  const [token, setToken] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('temp_reset_token') || '' : ''));
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -13,7 +14,7 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!password || !confirm) return;
+    if (!token || !password || !confirm) return;
     if (password !== confirm) {
       setMessage({ text: 'Access keys do not match.', type: 'error' });
       return;
@@ -23,11 +24,22 @@ export default function ResetPasswordPage() {
     setMessage(null);
 
     try {
-      // Mocking reset API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setMessage({ text: 'Access key updated. Re-authentication required.', type: 'success' });
-      setTimeout(() => router.push('/login'), 2000);
-    } catch (err) {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage({ text: 'Access key updated. Re-authentication required.', type: 'success' });
+        localStorage.removeItem('temp_reset_token');
+        setTimeout(() => router.push('/login'), 2000);
+      } else {
+        setMessage({ text: data.error || 'Reset failed.', type: 'error' });
+      }
+    } catch {
       setMessage({ text: 'Internal sync error. Try again.', type: 'error' });
     } finally {
       setLoading(false);
@@ -61,6 +73,17 @@ export default function ResetPasswordPage() {
             </div>
           ) : (
             <form className="space-y-6" onSubmit={handleSubmit}>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Recovery Key</label>
+                <input
+                  type="text"
+                  required
+                  value={token}
+                  onChange={e => setToken(e.target.value)}
+                  placeholder="EX: R4PT0R-K3Y"
+                  className="w-full rounded-xl bg-slate-50 px-4 py-4 text-sm font-medium text-slate-700 outline-none transition-all focus:bg-white focus:ring-4 focus:ring-accent-500/10 border border-slate-100 focus:border-accent-500/30"
+                />
+              </div>
               <div>
                 <div className="flex items-center justify-between mb-2 px-1">
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest">New Access Key</label>

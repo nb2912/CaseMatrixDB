@@ -17,14 +17,28 @@ export default function ForgotPasswordPage() {
     setMessage(null);
 
     try {
-      // Mocking the API call for now
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setMessage({ 
-        text: 'If an account exists for this email, a reset link will be dispatched shortly.', 
-        type: 'success' 
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       });
-    } catch (err) {
-      setMessage({ text: 'System error. Please try again later.', type: 'error' });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage({ 
+          text: 'Recovery key generated. Check terminal logs (or use the auto-bypass for this demo).', 
+          type: 'success' 
+        });
+        // In this demo, if we get a debugToken, we'll store it so Reset page can "see" it
+        if (data.debugToken) {
+          localStorage.setItem('temp_reset_token', data.debugToken);
+        }
+      } else {
+        setMessage({ text: data.error || 'Request failed.', type: 'error' });
+      }
+    } catch {
+      setMessage({ text: 'System offline. Please try again later.', type: 'error' });
     } finally {
       setLoading(false);
     }

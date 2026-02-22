@@ -44,7 +44,7 @@ const WitnessForm: React.FC<WitnessFormProps> = ({ caseId, onWitnessAdded }) => 
       } else {
         setToast({ message: 'Failed to record witness.', type: 'error' });
       }
-    } catch (err) {
+    } catch {
       setToast({ message: 'Database connection error.', type: 'error' });
     } finally {
       setLoading(false);

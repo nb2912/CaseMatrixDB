@@ -15,7 +15,6 @@ export default function WitnessesPage({ params }: WitnessesPageProps) {
   const router = useRouter();
   const [witnesses, setWitnesses] = useState<Witness[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const fetchWitnesses = useCallback(async () => {
     try {
@@ -23,8 +22,8 @@ export default function WitnessesPage({ params }: WitnessesPageProps) {
       if (!res.ok) throw new Error('Failed to fetch witnesses');
       const data: Witness[] = await res.json();
       setWitnesses(data);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to load witnesses.');
+    } catch {
+      // Failed to load witnesses
     } finally {
       setLoading(false);
     }
@@ -69,7 +68,7 @@ export default function WitnessesPage({ params }: WitnessesPageProps) {
                 </div>
                 {w.statement && (
                   <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 italic text-[13px] text-slate-600 font-medium">
-                    "{w.statement}"
+                    &quot;{w.statement}&quot;
                   </div>
                 )}
               </div>

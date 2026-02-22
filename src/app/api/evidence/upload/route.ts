@@ -35,7 +35,7 @@ export const POST = async (req: NextRequest) => {
       },
     });
     return NextResponse.json({ success: true, evidence });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ success: false, error: 'Database error.' });
   }
 };

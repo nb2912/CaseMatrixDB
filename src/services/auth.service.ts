@@ -30,6 +30,46 @@ export const AuthService = {
     const token = generateToken(user.id, user.email, user.role as UserRole);
     return { user, token };
   },
+
+  async forgotPassword(email: string) {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return null; // Security: don't reveal if user exists
+
+    const token = Math.random().toString(36).substring(2, 10).toUpperCase();
+    const expiry = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetToken: token,
+        resetTokenExpiry: expiry,
+      },
+    });
+
+    return token;
+  },
+
+  async resetPassword(token: string, newPassword: string) {
+    const user = await prisma.user.findFirst({
+      where: {
+        resetToken: token,
+        resetTokenExpiry: { gt: new Date() },
+      },
+    });
+
+    if (!user) throw new Error('Invalid or expired reset token');
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash: newPassword,
+        resetToken: null,
+        resetTokenExpiry: null,
+      },
+    });
+
+    return true;
+  },
 };
 
 

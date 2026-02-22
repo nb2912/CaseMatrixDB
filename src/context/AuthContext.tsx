@@ -23,7 +23,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     checkSession();
-    // eslint-disable-next-line
   }, []);
 
   const login = async (email: string, password: string) => {

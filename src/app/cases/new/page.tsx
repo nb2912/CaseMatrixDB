@@ -38,7 +38,7 @@ export default function NewCasePage() {
         <div>
           <h3 className="text-sm font-bold text-slate-800">Registration Notice</h3>
           <p className="text-xs text-slate-500 leading-relaxed font-medium mt-1">
-            Once a case is registered, it will be assigned a unique system ID. Initial descriptions can be updated later by authorized personnel. Ensure all parties' information is accurate before submission.
+            Once a case is registered, it will be assigned a unique system ID. Initial descriptions can be updated later by authorized personnel. Ensure all parties&apos; information is accurate before submission.
           </p>
         </div>
       </div>

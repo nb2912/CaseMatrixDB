@@ -29,13 +29,13 @@ export default function SearchPage() {
         if (res.ok) {
           const data = await res.json();
           const combined: SearchResult[] = [
-            ...data.cases.map((c: any) => ({ id: c.id, title: c.title, source: 'Case' })),
-            ...data.evidence.map((e: any) => ({ id: e.id, title: e.name, type: e.type, source: 'Evidence' })),
-            ...data.witnesses.map((w: any) => ({ id: w.id, title: w.name, source: 'Witness' })),
+            ...data.cases.map((c: { id: string; title: string }) => ({ id: c.id, title: c.title, source: 'Case' as const })),
+            ...data.evidence.map((e: { id: string; name: string; type: string }) => ({ id: e.id, title: e.name, type: e.type, source: 'Evidence' as const })),
+            ...data.witnesses.map((w: { id: string; name: string }) => ({ id: w.id, title: w.name, source: 'Witness' as const })),
           ];
           setResults(combined);
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Search error:', err);
       } finally {
         setLoading(false);
