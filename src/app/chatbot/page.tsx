@@ -71,31 +71,43 @@ export default function ChatbotPage() {
     }
   }, [messages]);
 
+  const [error, setError] = useState<string | null>(null);
+
   const handleSend = async (text: string = input) => {
-    if (!text.trim() || isLoading || !user?.id) return;
+    if (!text.trim() || isLoading) return;
+    
+    if (!user?.id) {
+      setError("Please log in to use the chatbot.");
+      return;
+    }
 
-    // 1. Save and update User Message
-    try {
-      const saveUserRes = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, role: 'user', content: text }),
-      });
-      
-      if (saveUserRes.ok) {
-        const savedMsg = await saveUserRes.json();
-        setMessages(prev => [...prev, { ...savedMsg, timestamp: new Date(savedMsg.timestamp) }]);
-      } else {
-        // Fallback for UI if API fails
-        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: text, timestamp: new Date() }]);
-      }
-    } catch (err: unknown) { console.error(err); }
+    setError(null);
+    const userMessage: Message = { 
+      id: Date.now().toString(), 
+      role: 'user', 
+      content: text, 
+      timestamp: new Date() 
+    };
 
+    // Optimistically update UI
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1800));
+      // 1. Try to save User Message to DB
+      try {
+        await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, role: 'user', content: text }),
+        });
+      } catch (dbErr) {
+        console.error('Failed to save user message to DB:', dbErr);
+        // We continue anyway so the user gets an answer even if DB is down
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       const lowerText = text.toLowerCase();
       let category = "General Legal Inquiry";
@@ -189,23 +201,30 @@ export default function ChatbotPage() {
       }
 
       const finalContent = response + suggestionText;
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: finalContent,
+        timestamp: new Date()
+      };
 
-      // 2. Save and update Assistant Message
-      const saveBotRes = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, role: 'assistant', content: finalContent }),
-      });
+      // 2. Add Assistant Message to UI
+      setMessages(prev => [...prev, assistantMessage]);
 
-      if (saveBotRes.ok) {
-        const savedBotMsg = await saveBotRes.json();
-        setMessages(prev => [...prev, { ...savedBotMsg, timestamp: new Date(savedBotMsg.timestamp) }]);
-      } else {
-        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: finalContent, timestamp: new Date() }]);
+      // 3. Try to save Assistant Message to DB
+      try {
+        await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, role: 'assistant', content: finalContent }),
+        });
+      } catch (dbErr) {
+        console.error('Failed to save assistant message to DB:', dbErr);
       }
 
     } catch (err: unknown) {
       console.error(err);
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -262,6 +281,14 @@ export default function ChatbotPage() {
 
         {/* Bottom Input Area */}
         <div className="flex-shrink-0 p-4 md:p-6 bg-white border-t border-slate-100">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-100 text-red-600 text-xs md:text-sm rounded-xl animate-in fade-in slide-in-from-top-2 duration-300 flex items-center gap-2">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {error}
+            </div>
+          )}
           {messages.length < 3 && (
             <div className="flex overflow-x-auto pb-2 mb-2 md:mb-4 gap-2 no-scrollbar scroll-smooth">
               {SUGGESTIONS.map(s => (

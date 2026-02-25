@@ -10,7 +10,7 @@ export const AuthService = {
     const user = await prisma.user.create({
       data: {
         email,
-        passwordHash: password, // In a real app, you should hash the password
+        passwordHash: password, 
         role,
         specialization,
       },

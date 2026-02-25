@@ -1,5 +1,4 @@
 // Prisma schema for CaseMatrixDB
-// Adjust provider to 'postgresql', 'mysql', or 'sqlite' as needed
 
 generator client {
   provider      = "prisma-client-js"
@@ -7,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql" // Change to your SQL type
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -16,7 +15,7 @@ model User {
   email          String   @unique
   passwordHash   String
   role           String
-  specialization String? // for lawyers
+  specialization String? 
   appointedCases Case[]  @relation("LawyerCases")
   cases          Case[]  @relation("UserCases")
   chatMessages   ChatMessage[]
@@ -26,7 +25,7 @@ model User {
 
 model ChatMessage {
   id        String   @id @default(uuid())
-  role      String   // 'user' or 'assistant'
+  role      String   
   content   String   @db.Text
   timestamp DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
