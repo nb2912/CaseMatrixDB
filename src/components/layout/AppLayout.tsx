@@ -3,6 +3,7 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -18,10 +19,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Navbar />
       </header>
       
-      <main className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
-        <div className="max-w-7xl mx-auto p-4 md:p-8">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col">
+        <div className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8">
           {children}
         </div>
+        <Footer />
       </main>
     </div>
   );
