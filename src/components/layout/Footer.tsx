@@ -62,10 +62,7 @@ const Footer = () => {
                 <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
                 <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Core Systems Active</span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100">
-                <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                <span className="text-[10px] font-bold text-blue-700 uppercase tracking-widest">v1.2.4-stable</span>
-              </div>
+
             </div>
           </div>
 
