@@ -19,11 +19,11 @@ export const PUT = withLogging(withErrorHandling(withAuth(async (req: NextReques
   return NextResponse.json(updated, { status: 200 });
 })));
 
-export const DELETE = withLogging(withErrorHandling(withAuth(async (_req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+export const DELETE = withLogging(withErrorHandling(withAuth(async (_req: NextRequest, { params, user }: { params: Promise<{ id: string }>, user: any }) => {
   const { id } = await params;
-  const ok = await CaseService.remove(id);
+  const ok = await CaseService.remove(id, user.sub);
   if (!ok) return NextResponse.json({ error: 'Case not found' }, { status: 404 });
   return NextResponse.json({ success: true }, { status: 200 });
-})));
+}, ['lawyer', 'judge'])));
 
 

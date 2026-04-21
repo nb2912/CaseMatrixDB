@@ -8,19 +8,35 @@ export const GET = withLogging(withErrorHandling(async (req: NextRequest) => {
 
   const [cases, evidence, witnesses] = await Promise.all([
     prisma.case.findMany({
-      where: { title: { contains: q } },
-      orderBy: { date: 'desc' },
-      take: 25,
+      where: {
+        OR: [
+          { title: { contains: q } },
+          { description: { contains: q } },
+          { status: { contains: q } }
+        ]
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 20,
     }),
     prisma.evidence.findMany({
-      where: { name: { contains: q } },
+      where: {
+        OR: [
+          { name: { contains: q } },
+          { type: { contains: q } }
+        ]
+      },
       orderBy: { uploaded: 'desc' },
-      take: 25,
+      take: 20,
     }),
     prisma.witness.findMany({
-      where: { name: { contains: q } },
-      orderBy: { name: 'asc' },
-      take: 25,
+      where: {
+        OR: [
+          { name: { contains: q } },
+          { statement: { contains: q } }
+        ]
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 20,
     }),
   ]);
 
