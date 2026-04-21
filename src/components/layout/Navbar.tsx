@@ -25,6 +25,13 @@ const Navbar = () => {
   // Role-based nav items logic (matching Sidebar.tsx)
   const filteredNavItems = navItems.filter(item => {
     if (!user) return false;
+    
+    // Admins see everything
+    if (user.role === 'admin') return true;
+    
+    // Hide Admin Panel for non-admins
+    if (item.label === 'Admin Panel') return false;
+
     // Judges don't appoint lawyers
     if (user.role === 'judge') {
       return item.label !== 'Appoint Lawyer';
