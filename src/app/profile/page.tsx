@@ -23,7 +23,7 @@ export default function ProfilePage() {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">User Profile</h1>
-          <p className="text-slate-500 mt-1 font-medium italic">Identification and Credentials Archive</p>
+
         </div>
         <button 
           onClick={() => { logout(); router.push('/login'); }}
