@@ -39,8 +39,8 @@ model Case {
   id          String   @id @default(uuid())
   title       String
   status      String
-  priority    String   @default("Medium") // For visual dashboard sorting
-  date        DateTime
+  priority    String   @default("Medium")
+  date        DateTime // Filing date
   description String?  @db.Text
   user        User     @relation("UserCases", fields: [userId], references: [id])
   userId      String
@@ -48,6 +48,7 @@ model Case {
   lawyerId    String?
   evidence    Evidence[]
   witnesses   Witness[]
+  hearings    Hearing[] // New relation
   auditLogs   AuditLog[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -59,9 +60,24 @@ model Evidence {
   caseId    String
   name      String
   type      String
-  fileUrl   String?  // For file preview
-  size      Int?     // In bytes
+  category  String   @default("General") // Pleadings, Exhibits, Court Orders, General
+  fileUrl   String?
+  size      Int?
   uploaded  DateTime @default(now())
+  updatedAt DateTime @updatedAt // Added for consistency
+}
+
+model Hearing {
+  id          String   @id @default(uuid())
+  case        Case     @relation(fields: [caseId], references: [id])
+  caseId      String
+  date        DateTime
+  location    String?  // e.g., "Room 302, District Court"
+  judgeName   String?
+  outcome     String?  @db.Text // e.g., "Adjourned to next month"
+  status      String   @default("Scheduled") // Scheduled, Completed, Cancelled
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Witness {

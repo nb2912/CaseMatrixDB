@@ -19,6 +19,7 @@ type CaseDetail = {
   evidence: any[];
   witnesses: any[];
   auditLogs: any[];
+  hearings: any[];
 };
 
 export default function CaseDetailPage({ params }: { params: Promise<{ caseId: string }> }) {
@@ -27,7 +28,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ caseId: s
   const [caseData, setCaseData] = useState<CaseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'summary' | 'evidence' | 'timeline'>('summary');
+  const [activeTab, setActiveTab] = useState<'summary' | 'evidence' | 'hearings' | 'timeline'>('summary');
 
   const statusMap: Record<string, { label: string; class: string }> = {
     Open: { label: 'Active', class: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' },
@@ -39,6 +40,15 @@ export default function CaseDetailPage({ params }: { params: Promise<{ caseId: s
     High: 'text-red-600 bg-red-50 ring-red-600/20',
     Medium: 'text-amber-600 bg-amber-50 ring-amber-600/20',
     Low: 'text-blue-600 bg-blue-50 ring-blue-600/20',
+  };
+
+  // Mock Outcome Prediction Logic
+  const calculateProbability = () => {
+    if (!caseData) return 0;
+    const evidenceScore = Math.min(caseData.evidence.length * 15, 45);
+    const witnessScore = Math.min(caseData.witnesses.length * 10, 35);
+    const descriptionScore = caseData.description?.length > 100 ? 20 : 10;
+    return evidenceScore + witnessScore + descriptionScore;
   };
 
   useEffect(() => {
@@ -71,6 +81,8 @@ export default function CaseDetailPage({ params }: { params: Promise<{ caseId: s
       <button onClick={() => router.push('/cases')} className="text-xs font-bold text-accent-600 hover:underline">Return to Archive</button>
     </div>
   );
+
+  const probability = calculateProbability();
 
   return (
     <div className="max-w-6xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -112,6 +124,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ caseId: s
       <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl w-fit">
         {[
           { id: 'summary', label: 'Summary', icon: <FileText className="h-4 w-4" /> },
+          { id: 'hearings', label: 'Hearings', icon: <Calendar className="h-4 w-4" /> },
           { id: 'evidence', label: 'Evidence', icon: <Briefcase className="h-4 w-4" /> },
           { id: 'timeline', label: 'Timeline', icon: <History className="h-4 w-4" /> },
         ].map((tab) => (
@@ -164,46 +177,121 @@ export default function CaseDetailPage({ params }: { params: Promise<{ caseId: s
             </div>
           )}
 
-          {activeTab === 'evidence' && (
+          {activeTab === 'hearings' && (
             <div className="space-y-6 animate-in fade-in duration-500">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Exhibit Archive</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Court Schedule</h2>
                 <button className="text-xs font-bold text-accent-600 hover:underline flex items-center gap-1">
                   <Plus className="h-3 w-3" />
-                  Add Exhibit
+                  Schedule Hearing
                 </button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {caseData.evidence.map((item) => (
-                  <div key={item.id} className="glass-card p-5 border-slate-200 group hover:border-accent-500/50 transition-all flex flex-col justify-between h-40">
-                    <div className="flex items-start justify-between">
-                      <div className="p-2 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-primary-900 group-hover:text-white transition-colors">
-                        <FileText className="h-5 w-5" />
+              
+              <div className="space-y-4">
+                {caseData.hearings.map((hearing) => (
+                  <div key={hearing.id} className="glass-card p-6 border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-accent-500/30 transition-all">
+                    <div className="flex items-center gap-4">
+                      <div className="flex flex-col items-center justify-center h-16 w-16 bg-slate-900 text-white rounded-2xl">
+                        <span className="text-[10px] font-black uppercase opacity-60">
+                          {new Date(hearing.date).toLocaleString('default', { month: 'short' })}
+                        </span>
+                        <span className="text-2xl font-black">
+                          {new Date(hearing.date).getDate()}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-accent-600 transition-all">
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-accent-600 transition-all">
-                          <Download className="h-4 w-4" />
-                        </button>
+                      <div>
+                        <h4 className="font-bold text-slate-900">{hearing.location || "TBD Courtroom"}</h4>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
+                          Judge: {hearing.judgeName || "Unassigned"}
+                        </p>
                       </div>
                     </div>
-                    <div>
-                      <h4 className="font-bold text-slate-900 truncate">{item.name}</h4>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                        {item.type} • {new Date(item.uploaded).toLocaleDateString()}
-                      </p>
+                    <div className="flex flex-col md:items-end gap-2">
+                      <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ring-1 ring-inset ${
+                        hearing.status === 'Scheduled' ? 'bg-blue-50 text-blue-700 ring-blue-600/20' : 'bg-emerald-50 text-emerald-700 ring-emerald-600/20'
+                      }`}>
+                        {hearing.status}
+                      </span>
+                      {hearing.outcome && (
+                        <p className="text-[10px] font-bold text-slate-500 max-w-xs md:text-right">
+                          Outcome: {hearing.outcome}
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
-                {caseData.evidence.length === 0 && (
-                  <div className="col-span-full py-20 text-center glass-card border-dashed border-slate-200">
-                    <Briefcase className="h-10 w-10 text-slate-200 mx-auto mb-3" />
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No evidence registered</p>
+                {caseData.hearings.length === 0 && (
+                  <div className="py-20 text-center glass-card border-dashed border-slate-200">
+                    <Calendar className="h-10 w-10 text-slate-200 mx-auto mb-3" />
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No court dates scheduled</p>
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {activeTab === 'evidence' && (
+            <div className="space-y-10 animate-in fade-in duration-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Document Vault</h2>
+                  <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase">Categorized legal exhibit archive</p>
+                </div>
+                <button className="text-xs font-bold text-accent-600 hover:underline flex items-center gap-1">
+                  <Plus className="h-3 w-3" />
+                  Upload to Vault
+                </button>
+              </div>
+
+              {['Pleadings', 'Exhibits', 'Court Orders', 'General'].map((cat) => {
+                const items = caseData.evidence.filter(i => i.category === cat || (!i.category && cat === 'General'));
+                if (items.length === 0 && cat !== 'General') return null;
+
+                return (
+                  <div key={cat} className="space-y-4">
+                    <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.15em] flex items-center gap-2">
+                      <span className="h-1 w-4 bg-primary-900 rounded-full"></span>
+                      {cat}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {items.map((item) => (
+                        <div key={item.id} className="glass-card p-5 border-slate-200 group hover:border-accent-500/50 transition-all flex flex-col justify-between h-40">
+                          <div className="flex items-start justify-between">
+                            <div className="p-2 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-primary-900 group-hover:text-white transition-colors">
+                              <FileText className="h-5 w-5" />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-accent-600 transition-all">
+                                <Eye className="h-4 w-4" />
+                              </button>
+                              <button className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-accent-600 transition-all">
+                                <Download className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-slate-900 truncate">{item.name}</h4>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-[9px] font-black text-accent-600 bg-accent-50 px-1.5 py-0.5 rounded uppercase tracking-tighter">
+                                {item.type}
+                              </span>
+                              <span className="text-[9px] font-bold text-slate-400 uppercase">
+                                {new Date(item.uploaded).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      {items.length === 0 && cat === 'General' && (
+                        <div className="col-span-full py-20 text-center glass-card border-dashed border-slate-200">
+                          <Briefcase className="h-10 w-10 text-slate-200 mx-auto mb-3" />
+                          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Vault is currently empty</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
 
@@ -217,29 +305,51 @@ export default function CaseDetailPage({ params }: { params: Promise<{ caseId: s
         {/* Sidebar Info */}
         <div className="space-y-8">
           <section className="glass-card p-8 border-slate-200">
-            <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Metadata Matrix</h2>
-            <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <Calendar className="h-5 w-5 text-slate-300 mt-0.5" />
-                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Filing Date</p>
-                  <p className="text-sm font-bold text-slate-900">
-                    {new Date(caseData.date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
-                  </p>
+            <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Case Intelligence</h2>
+            
+            <div className="space-y-8">
+              {/* Prediction Meter */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Resolution Probability</p>
+                  <span className="text-sm font-black text-accent-600">{probability}%</span>
                 </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <MapPin className="h-5 w-5 text-slate-300 mt-0.5" />
-                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Jurisdiction</p>
-                  <p className="text-sm font-bold text-slate-900">District Court - Civil Branch</p>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-accent-500 transition-all duration-1000 ease-out" 
+                    style={{ width: `${probability}%` }}
+                  ></div>
                 </div>
+                <p className="text-[10px] font-bold text-slate-400 mt-3 leading-relaxed">
+                  Based on evidence density, witness corroboration, and procedural history.
+                </p>
               </div>
-              <div className="flex items-start gap-4">
-                <User className="h-5 w-5 text-slate-300 mt-0.5" />
-                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registered By</p>
-                  <p className="text-sm font-bold text-slate-900">System Admin</p>
+
+              <div className="h-[1px] w-full bg-slate-50"></div>
+
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <Calendar className="h-5 w-5 text-slate-300 mt-0.5" />
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Filing Date</p>
+                    <p className="text-sm font-bold text-slate-900">
+                      {new Date(caseData.date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <MapPin className="h-5 w-5 text-slate-300 mt-0.5" />
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Jurisdiction</p>
+                    <p className="text-sm font-bold text-slate-900">District Court - Civil Branch</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <User className="h-5 w-5 text-slate-300 mt-0.5" />
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registered By</p>
+                    <p className="text-sm font-bold text-slate-900">System Admin</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -255,6 +365,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ caseId: s
           </section>
         </div>
       </div>
+
       <footer className="pt-10 border-t border-slate-100 flex justify-center">
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
           © {new Date().getFullYear()} CaseMatrixDB. All Rights Reserved.

@@ -47,9 +47,26 @@ CREATE TABLE `Evidence` (
     `caseId` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `type` VARCHAR(191) NOT NULL,
+    `category` VARCHAR(191) NOT NULL DEFAULT 'General',
     `fileUrl` VARCHAR(191) NULL,
     `size` INTEGER NULL,
     `uploaded` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Hearing` (
+    `id` VARCHAR(191) NOT NULL,
+    `caseId` VARCHAR(191) NOT NULL,
+    `date` DATETIME(3) NOT NULL,
+    `location` VARCHAR(191) NULL,
+    `judgeName` VARCHAR(191) NULL,
+    `outcome` TEXT NULL,
+    `status` VARCHAR(191) NOT NULL DEFAULT 'Scheduled',
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -91,6 +108,9 @@ ALTER TABLE `Case` ADD CONSTRAINT `Case_lawyerId_fkey` FOREIGN KEY (`lawyerId`) 
 
 -- AddForeignKey
 ALTER TABLE `Evidence` ADD CONSTRAINT `Evidence_caseId_fkey` FOREIGN KEY (`caseId`) REFERENCES `Case`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Hearing` ADD CONSTRAINT `Hearing_caseId_fkey` FOREIGN KEY (`caseId`) REFERENCES `Case`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Witness` ADD CONSTRAINT `Witness_caseId_fkey` FOREIGN KEY (`caseId`) REFERENCES `Case`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

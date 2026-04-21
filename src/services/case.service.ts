@@ -24,6 +24,9 @@ export const CaseService = {
       include: { 
         evidence: true, 
         witnesses: true,
+        hearings: {
+          orderBy: { date: 'asc' }
+        },
         auditLogs: {
           orderBy: { timestamp: 'desc' },
           include: { user: { select: { email: true } } }
