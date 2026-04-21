@@ -9,6 +9,7 @@ const navItems = [
   { label: "Cases", href: "/cases" },
   { label: "Calendar", href: "/calendar" },
   { label: "Search", href: "/search" },
+  { label: "Admin Panel", href: "/admin" },
   { label: "Appoint Lawyer", href: "/lawyers" },
   { label: "Chatbot", href: "/chatbot" },
   { label: "Courts Near Me", href: "/courts" },

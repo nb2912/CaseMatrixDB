@@ -58,7 +58,7 @@ export default function ProfilePage() {
                 Secure Database Access
               </li>
               <li className="flex items-center gap-3 text-sm font-bold text-slate-700">
-                <div className="h-2 w-2 rounded-full bg-slate-300"></div>
+                <div className={`h-2 w-2 rounded-full ${user.role === 'admin' ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50' : 'bg-slate-300'}`}></div>
                 Admin Panel Access
               </li>
             </ul>

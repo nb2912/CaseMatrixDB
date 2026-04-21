@@ -23,7 +23,7 @@ export interface WitnessEntity {
   statement: string;
 }
 
-export type UserRole = 'user' | 'lawyer' | 'judge';
+export type UserRole = 'user' | 'lawyer' | 'judge' | 'admin';
 export type LawyerSpecialization = 'civil' | 'criminal' | 'other';
 export interface UserEntity {
   id: ID;
