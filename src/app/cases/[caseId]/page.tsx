@@ -6,7 +6,7 @@ import { CaseTimeline } from '@/components/cases/CaseTimeline';
 import { 
   Gavel, FileText, History, Users, Shield, 
   Download, Eye, ExternalLink, Calendar, MapPin, User,
-  Briefcase, AlertTriangle
+  Briefcase, AlertTriangle, Plus
 } from 'lucide-react';
 
 type CaseDetail = {

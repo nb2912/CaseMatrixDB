@@ -78,7 +78,7 @@ export default function DashboardPage() {
               className="p-3 bg-white border border-slate-200 rounded-xl hover:border-accent-500 hover:text-accent-600 transition-all shadow-sm group"
               title={link.title}
             >
-              {React.cloneElement(link.icon as React.ReactElement, { className: "h-5 w-5" })}
+              {React.cloneElement(link.icon as React.ReactElement, { className: "h-5 w-5" } as any)}
             </button>
           ))}
         </div>
