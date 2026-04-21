@@ -80,7 +80,7 @@ export default function CalendarPage() {
           <h1 className="text-4xl font-black text-slate-900 tracking-tight">Legal Calendar</h1>
           <p className="text-slate-500 mt-2 font-medium flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-accent-500"></span>
-            Synchronized court schedule for {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+            Scheduled court sessions for {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
           </p>
         </div>
         <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-200 shadow-sm">
@@ -194,16 +194,7 @@ export default function CalendarPage() {
             </div>
           </section>
 
-          <section className="glass-card p-6 bg-slate-900 text-white overflow-hidden relative">
-            <div className="relative z-10">
-              <Gavel className="h-8 w-8 text-accent-500 mb-4" />
-              <h3 className="font-bold mb-2">System Integrity</h3>
-              <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
-                The judicial calendar is synchronized with the High Court API. All session changes are logged in the immutable audit matrix.
-              </p>
-            </div>
-            <div className="absolute -right-10 -bottom-10 h-32 w-32 bg-accent-500/10 rounded-full blur-3xl"></div>
-          </section>
+
         </div>
       </div>
     </div>
