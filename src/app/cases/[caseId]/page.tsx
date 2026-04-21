@@ -255,6 +255,11 @@ export default function CaseDetailPage({ params }: { params: Promise<{ caseId: s
           </section>
         </div>
       </div>
+      <footer className="pt-10 border-t border-slate-100 flex justify-center">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+          © {new Date().getFullYear()} CaseMatrixDB. All Rights Reserved.
+        </p>
+      </footer>
     </div>
   );
 }

@@ -58,10 +58,7 @@ const Footer = () => {
               The next-generation legal case management matrix. Designed for immutable record keeping, procedural clarity, and streamlined litigation workflows.
             </p>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100">
-                <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Core Systems Active</span>
-              </div>
+
 
             </div>
           </div>

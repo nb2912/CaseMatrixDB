@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import { 
   ShieldCheck, Gavel, Users, FileText, Activity, 
-  ArrowUpRight, Clock, Database, Search, MessageSquare, Plus
+  ArrowUpRight, Clock, Database, Search, MessageSquare, Plus, AlertCircle
 } from 'lucide-react';
 
 const COLORS = ['#0f172a', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
@@ -162,27 +162,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* System Security / Bottom Bar */}
-          <div className="glass-card p-8 bg-primary-900 text-white relative overflow-hidden">
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div>
-                <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
-                  <ShieldCheck className="h-6 w-6 text-emerald-400" />
-                  Encryption Active
-                </h3>
-                <p className="text-slate-400 text-sm font-medium max-w-md">
-                  This session is secured with 256-bit protocol. All actions are currently being recorded in the Audit Matrix for compliance.
-                </p>
-              </div>
-              <button 
-                onClick={() => router.push('/about')}
-                className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-bold transition-all border border-white/10"
-              >
-                View Protocols
-              </button>
-            </div>
-            <div className="absolute -right-20 -bottom-20 h-64 w-64 bg-accent-500/10 rounded-full blur-[80px]"></div>
-          </div>
+
         </div>
 
         {/* Sidebar: Audit Logs & Activity */}
@@ -221,16 +201,26 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="glass-card p-6 bg-slate-50 border-slate-200">
-            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-4">System Alerts</h3>
-            <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl">
-              <p className="text-[10px] font-bold text-amber-800 leading-relaxed uppercase tracking-tight">
-                3 high-priority cases require immediate lawyer appointment. Check case archive.
-              </p>
+          {data?.alertCount > 0 && (
+            <div className="glass-card p-6 bg-slate-50 border-slate-200 animate-in zoom-in duration-500">
+              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-amber-500" />
+                System Alerts
+              </h3>
+              <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl">
+                <p className="text-[10px] font-bold text-amber-800 leading-relaxed uppercase tracking-tight">
+                  {data.alertCount} high-priority case{data.alertCount > 1 ? 's' : ''} require immediate lawyer appointment. Check case archive.
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
+      <footer className="pt-10 border-t border-slate-100 flex justify-center">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+          © {new Date().getFullYear()} CaseMatrixDB. All Rights Reserved.
+        </p>
+      </footer>
     </div>
   );
 }

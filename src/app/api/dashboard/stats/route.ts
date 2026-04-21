@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
@@ -9,7 +9,8 @@ export async function GET() {
       totalWitnesses,
       statusDistribution,
       priorityDistribution,
-      recentLogs
+      recentLogs,
+      unassignedHighPriorityCases
     ] = await Promise.all([
       prisma.case.count(),
       prisma.evidence.count(),
@@ -26,6 +27,12 @@ export async function GET() {
         take: 5,
         orderBy: { timestamp: 'desc' },
         include: { user: { select: { email: true } } }
+      }),
+      prisma.case.count({
+        where: {
+          priority: 'High',
+          lawyerId: null
+        }
       })
     ]);
 
@@ -49,7 +56,8 @@ export async function GET() {
         entity: log.entity,
         user: log.user.email.split('@')[0],
         time: log.timestamp,
-      }))
+      })),
+      alertCount: unassignedHighPriorityCases
     });
   } catch (error) {
     console.error("Dashboard stats error:", error);

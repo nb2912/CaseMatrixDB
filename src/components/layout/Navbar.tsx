@@ -23,9 +23,15 @@ const Navbar = () => {
   // Role-based nav items logic (matching Sidebar.tsx)
   const filteredNavItems = navItems.filter(item => {
     if (!user) return false;
-    if (user.role === 'judge') return true;
-    if (user.role === 'lawyer') return item.label !== 'Dashboard';
-    return true; // Simplified for now, basic users see all common tools
+    // Judges don't appoint lawyers
+    if (user.role === 'judge') {
+      return item.label !== 'Appoint Lawyer';
+    }
+    // Lawyers don't need a main landing dashboard
+    if (user.role === 'lawyer') {
+      return item.label !== 'Dashboard';
+    }
+    return true; 
   });
 
   return (

@@ -23,7 +23,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8">
           {children}
         </div>
-        <Footer />
+        {pathname === "/about" && <Footer />}
       </main>
     </div>
   );
