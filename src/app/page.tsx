@@ -8,7 +8,7 @@ import {
   PieChart, Pie, Cell, Legend 
 } from 'recharts';
 import { 
-  ShieldCheck, Gavel, Users, FileText, Activity, 
+  ShieldCheck, Gavel, Users, FileText, Activity, Shield, History,
   ArrowUpRight, Clock, Database, Search, MessageSquare, Plus, AlertCircle
 } from 'lucide-react';
 
@@ -62,165 +62,173 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">System Matrix</h1>
-          <p className="text-slate-500 mt-2 font-medium flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-            {user ? `Authenticated as ${user.email.split('@')[0]}` : "Establishing secure uplink..."}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {quickLinks.map((link, i) => (
-            <button
-              key={i}
-              onClick={() => router.push(link.path)}
-              className="p-3 bg-white border border-slate-200 rounded-xl hover:border-accent-500 hover:text-accent-600 transition-all shadow-sm group"
-              title={link.title}
-            >
-              {React.cloneElement(link.icon as React.ReactElement, { className: "h-5 w-5" } as any)}
-            </button>
-          ))}
-        </div>
-      </header>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, i) => (
-          <div key={i} className="glass-card p-6 border-slate-200 group hover:border-accent-500/50 transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-2 rounded-lg bg-slate-50 ${stat.color} group-hover:bg-primary-900 group-hover:text-white transition-colors`}>
-                {stat.icon}
-              </div>
-              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+      {/* Bento Grid Dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        
+        {/* Large Analytics: Case Status */}
+        <div className="md:col-span-2 md:row-span-2 glass-card p-8 border-slate-200 flex flex-col h-[400px]">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Operational Status</h3>
+              <p className="text-sm font-bold text-slate-900 mt-1">Live Case Distribution</p>
             </div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{stat.label}</p>
-            <p className="text-3xl font-black text-slate-900 mt-1">{stat.value}</p>
+            <Activity className="h-4 w-4 text-accent-500 animate-pulse" />
           </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Charts Section */}
-        <div className="lg:col-span-2 space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Status Distribution */}
-            <div className="glass-card p-6 border-slate-200 h-[350px] flex flex-col">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-accent-500" />
-                  Case Status
-                </h3>
-              </div>
-              <div className="flex-1 min-h-0">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={data?.statusDistribution || []}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {data?.statusDistribution?.map((entry: any, index: number) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Legend iconType="circle" />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Priority Distribution */}
-            <div className="glass-card p-6 border-slate-200 h-[350px] flex flex-col">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                  <ArrowUpRight className="h-4 w-4 text-accent-500" />
-                  Priority Distribution
-                </h3>
-              </div>
-              <div className="flex-1 min-h-0">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data?.priorityDistribution || []}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} tick={{ fill: '#64748b' }} />
-                    <YAxis axisLine={false} tickLine={false} fontSize={12} tick={{ fill: '#64748b' }} />
-                    <Tooltip 
-                      cursor={{ fill: '#f8fafc' }}
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Bar dataKey="value" fill="#0f172a" radius={[4, 4, 0, 0]} barSize={40} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+          <div className="flex-1 min-h-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data?.statusDistribution || []}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={8}
+                  dataKey="value"
+                  stroke="none"
+                >
+                  {data?.statusDistribution?.map((entry: any, index: number) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
+                  itemStyle={{ fontSize: '12px', fontWeight: 700 }}
+                />
+                <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }} />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
-
-
         </div>
 
-        {/* Sidebar: Audit Logs & Activity */}
-        <div className="space-y-8">
-          <div className="glass-card p-6 border-slate-200">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-6 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-accent-500" />
-              Audit Matrix
-            </h3>
-            <div className="space-y-6">
-              {data?.recentLogs?.length > 0 ? (
-                data.recentLogs.map((log: any) => (
-                  <div key={log.id} className="relative pl-6 pb-6 border-l border-slate-100 last:pb-0">
-                    <div className="absolute left-[-5px] top-0 h-2.5 w-2.5 rounded-full bg-accent-500 border-2 border-white shadow-[0_0_0_2px_rgba(245,158,11,0.1)]"></div>
-                    <div className="space-y-1">
-                      <p className="text-xs font-bold text-slate-900">
-                        {log.action} {log.entity}
-                      </p>
-                      <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
-                        BY {log.user} • {new Date(log.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-10 space-y-3">
-                  <Activity className="h-8 w-8 text-slate-200 mx-auto" />
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No activity detected</p>
+        {/* Stat Card: Active Cases */}
+        <div className="md:col-span-1 md:row-span-1 glass-card p-6 border-slate-200 group hover:border-accent-500/50 transition-all flex flex-col justify-between">
+          <div className="p-2 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-primary-900 group-hover:text-white transition-colors w-fit">
+            <Gavel className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Matrix</p>
+            <p className="text-4xl font-black text-slate-900 mt-1">{data?.counts.cases || 0}</p>
+          </div>
+        </div>
+
+        {/* Stat Card: Evidence */}
+        <div className="md:col-span-1 md:row-span-1 glass-card p-6 border-slate-200 group hover:border-accent-500/50 transition-all flex flex-col justify-between">
+          <div className="p-2 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-primary-900 group-hover:text-white transition-colors w-fit">
+            <Database className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Digital Vault</p>
+            <p className="text-4xl font-black text-slate-900 mt-1">{data?.counts.evidence || 0}</p>
+          </div>
+        </div>
+
+        {/* Stat Card: Witnesses */}
+        <div className="md:col-span-1 md:row-span-1 glass-card p-6 border-slate-200 group hover:border-accent-500/50 transition-all flex flex-col justify-between">
+          <div className="p-2 rounded-lg bg-slate-50 text-slate-400 group-hover:bg-primary-900 group-hover:text-white transition-colors w-fit">
+            <Users className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Witness Pool</p>
+            <p className="text-4xl font-black text-slate-900 mt-1">{data?.counts.witnesses || 0}</p>
+          </div>
+        </div>
+
+        {/* Security / System Info Card */}
+        <div className="md:col-span-1 md:row-span-1 glass-card p-6 bg-primary-900 border-none flex flex-col justify-between relative overflow-hidden group">
+          <Shield className="h-8 w-8 text-accent-500 relative z-10 group-hover:scale-110 transition-transform" />
+          <div className="relative z-10">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Security Level</p>
+            <p className="text-2xl font-black text-white mt-1">High (Encrypted)</p>
+          </div>
+          <div className="absolute -right-6 -bottom-6 h-24 w-24 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-colors"></div>
+        </div>
+
+        {/* Audit Matrix (Spanning height) */}
+        <div className="md:col-span-2 md:row-span-2 glass-card p-8 border-slate-200 flex flex-col h-[420px]">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-slate-900 flex items-center justify-center text-accent-500 shadow-lg shadow-slate-900/20">
+                <History className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Audit Matrix</h3>
+                <p className="text-[10px] font-bold text-slate-900 mt-0.5 uppercase">Real-time Stream</p>
+              </div>
+            </div>
+            <button className="text-[10px] font-black text-accent-600 uppercase tracking-widest hover:underline" onClick={() => router.push('/admin')}>Deep Audit</button>
+          </div>
+          <div className="space-y-5 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            {data?.recentLogs?.length > 0 ? (
+              data.recentLogs.map((log: any) => (
+                <div key={log.id} className="group relative pl-4 border-l-2 border-slate-100 hover:border-accent-500 transition-colors py-1">
+                  <p className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                    <span className={`h-1.5 w-1.5 rounded-full ${log.action === 'CREATE' ? 'bg-emerald-500' : log.action === 'DELETE' ? 'bg-red-500' : 'bg-blue-500'}`}></span>
+                    {log.action} {log.entity}
+                  </p>
+                  <p className="text-[10px] text-slate-400 font-medium mt-1 uppercase tracking-tighter">
+                    BY {log.user} • {new Date(log.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
                 </div>
-              )}
-            </div>
-            {data?.recentLogs?.length > 0 && (
-              <button className="w-full mt-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-widest border-t border-slate-50 hover:text-accent-600 transition-colors">
-                View Full Log
-              </button>
+              ))
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-center opacity-40 grayscale">
+                <Activity className="h-12 w-12 text-slate-200 mb-3" />
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol Nominal</p>
+              </div>
             )}
           </div>
+        </div>
 
-          {data?.alertCount > 0 && (
-            <div className="glass-card p-6 bg-slate-50 border-slate-200 animate-in zoom-in duration-500">
-              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-amber-500" />
-                System Alerts
-              </h3>
-              <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl">
-                <p className="text-[10px] font-bold text-amber-800 leading-relaxed uppercase tracking-tight">
-                  {data.alertCount} high-priority case{data.alertCount > 1 ? 's' : ''} require immediate lawyer appointment. Check case archive.
+        {/* Priority Analytics */}
+        <div className="md:col-span-2 md:row-span-2 glass-card p-8 border-slate-200 flex flex-col h-[420px]">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Priority Matrix</h3>
+              <p className="text-sm font-bold text-slate-900 mt-1">Resource Allocation</p>
+            </div>
+            <ArrowUpRight className="h-4 w-4 text-slate-400" />
+          </div>
+          <div className="flex-1 min-h-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data?.priorityDistribution || []}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} fontWeight={900} tick={{ fill: '#94a3b8' }} />
+                <YAxis axisLine={false} tickLine={false} fontSize={10} fontWeight={900} tick={{ fill: '#94a3b8' }} />
+                <Tooltip 
+                  cursor={{ fill: '#f8fafc' }}
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
+                />
+                <Bar dataKey="value" fill="#0f172a" radius={[6, 6, 0, 0]} barSize={40}>
+                   {data?.priorityDistribution?.map((entry: any, index: number) => (
+                    <Cell key={`cell-${index}`} fill={['#ef4444', '#f59e0b', '#6366f1'][index % 3]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* System Alerts (Footer Banner) */}
+        {data?.alertCount > 0 && (
+          <div className="md:col-span-4 glass-card p-6 bg-amber-50 border-amber-100 flex items-center justify-between group cursor-pointer hover:bg-amber-100 transition-all">
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600 animate-pulse">
+                <AlertCircle className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm font-black text-amber-900 uppercase tracking-tight">Critical Attention Required</p>
+                <p className="text-xs font-bold text-amber-700 mt-0.5">
+                  {data.alertCount} High-Priority Case{data.alertCount > 1 ? 's' : ''} unassigned. Immediate lawyer appointment mandatory.
                 </p>
               </div>
             </div>
-          )}
-        </div>
+            <button className="px-6 py-2.5 bg-amber-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-colors">Resolve Now</button>
+          </div>
+        )}
       </div>
-      <footer className="pt-10 border-t border-slate-100 flex justify-center">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-          © {new Date().getFullYear()} CaseMatrixDB. All Rights Reserved.
-        </p>
-      </footer>
+
+
     </div>
   );
 }
